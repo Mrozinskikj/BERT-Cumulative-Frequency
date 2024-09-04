@@ -1,7 +1,8 @@
 import numpy as np
+import torch
 
 
-def count_letters(text: str) -> np.array:
+def count_letters(text: str) -> torch.Tensor:
     """
     Count the number of times each letter appears in the text up to that point
 
@@ -12,14 +13,14 @@ def count_letters(text: str) -> np.array:
 
     Returns
     -------
-    np.array
-        A vector of counts, one for each letter in the text
+    torch.Tensor
+        A tensor of counts, one for each letter in the text
     """
     output = np.zeros(len(text), dtype=np.int32)
     for i in range(0, len(text)):
         output[i] = min(2, len([c for c in text[0:i] if c == text[i]]))
 
-    return output
+    return torch.tensor(output, dtype=torch.long) # array into tensor
 
 
 def print_line():
