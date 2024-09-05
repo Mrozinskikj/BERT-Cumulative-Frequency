@@ -113,7 +113,7 @@ def batch_tensor(tensor_list, batch_size) -> torch.Tensor:
     
     batched_tensor = tensor_stacked.view(num_batches, batch_size, -1) # reshape 2D tensor into batched 3D tensor
     return batched_tensor
-
+    
 
 def process_dataset(inputs, tokeniser, batch_size = 4) -> dict:
     """
@@ -135,8 +135,16 @@ def process_dataset(inputs, tokeniser, batch_size = 4) -> dict:
             The batched tensor of tokenised input strings.
         - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
             The batched tensor of labels corresponding to input IDs.
+    
+    Raises
+    ------
+    ValueError
+        If length of 'inputs' is less than 'batch_size'.
     """
     
+    if len(inputs) < batch_size:
+        raise ValueError("Input list is too short for a single batch.")
+
     input_ids_list = [tokeniser.encode(text) for text in inputs] # list of token tensors for each input
     labels_list = [count_letters(text) for text in inputs] # list of label tensors for each input
 
