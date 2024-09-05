@@ -3,7 +3,7 @@ import os
 import uvicorn
 
 from nlp_engineer_assignment import count_letters, print_line, read_inputs, \
-    score, train_classifier
+    score, train_classifier, Tokeniser, process_dataset
 
 
 def train_model():
@@ -13,26 +13,19 @@ def train_model():
     # Setup
     ###
 
-    # Constructs the vocabulary as described in the assignment
-    vocabs = [chr(ord('a') + i) for i in range(0, 26)] + [' ']
+    tokeniser = Tokeniser()
 
-    ###
-    # Train
-    ###
-
-    train_inputs = read_inputs(
+    inputs_train = read_inputs(
         os.path.join(cur_dir, "data", "train.txt")
     )
+    dataset_train = process_dataset(inputs_train, tokeniser)
 
-    model = train_classifier(train_inputs)
-
-    ###
-    # Test
-    ###
-
-    test_inputs = read_inputs(
+    inputs_test = read_inputs(
         os.path.join(cur_dir, "data", "test.txt")
     )
+    dataset_test = process_dataset(inputs_test, tokeniser)
+
+    model = train_classifier(inputs_train)
 
     # TODO: Extract predictions from the model and save it to a
     # variable called `predictions`. Observe the shape of the
