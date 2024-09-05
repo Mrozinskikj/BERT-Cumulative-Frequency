@@ -1,5 +1,5 @@
 import torch
-from nlp_engineer_assignment import count_letters
+from nlp_engineer_assignment import count_letters, print_line
 
 
 class Tokeniser:
@@ -145,4 +145,6 @@ def process_dataset(inputs, tokeniser, batch_size = 4) -> dict:
         'input_ids': batch_tensor(input_ids_list, batch_size),
         'labels': batch_tensor(labels_list, batch_size)
     }
+    print("Dataset created.", ", ".join([f"{key}: {tensor.size()}" for key, tensor in dataset.items()]))
+    print_line()
     return dataset
