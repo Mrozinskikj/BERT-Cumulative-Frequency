@@ -50,7 +50,7 @@ class Tokeniser:
         
         Returns
         -------
-        torch.Tensor (shape [self.length])
+        torch.Tensor (shape [length])
             A tensor containing the token IDs corresponding to input string.
             
         Raises
@@ -76,7 +76,7 @@ class Tokeniser:
 
         Parameters
         ----------
-        tokens : torch.Tensor
+        tokens : torch.Tensor (shape [length])
             A tensor containing token IDs to decode.
         
         Returns
@@ -87,7 +87,7 @@ class Tokeniser:
         return "".join([self.id_to_char[i.item()] for i in tokens])
 
 
-def batch_tensor(tensor_list, batch_size) -> torch.Tensor:
+def batch_tensor(tensor_list: list, batch_size: int) -> torch.Tensor:
     """
     Converts a list of 1D tensors into a batched 3D tensor. Used with 'process_dataset'.
 
@@ -115,7 +115,7 @@ def batch_tensor(tensor_list, batch_size) -> torch.Tensor:
     return batched_tensor
     
 
-def process_dataset(inputs, tokeniser, batch_size = 4) -> dict:
+def process_dataset(inputs, tokeniser: Tokeniser, batch_size: int = 4) -> dict:
     """
     Processes raw data into input tokens and labels, creating a dataset dictionary of batched tensors.
 
