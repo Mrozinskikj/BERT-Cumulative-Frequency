@@ -25,19 +25,19 @@ def train_model():
     )
     dataset_test = process_dataset(inputs_test, tokeniser)
 
-    model = train_classifier(inputs_train)
+    model = train_classifier(dataset_train, dataset_test)
 
     # TODO: Extract predictions from the model and save it to a
     # variable called `predictions`. Observe the shape of the
     # example random predictions.
-    golds = np.stack([count_letters(text) for text in test_inputs])
+    golds = np.stack([count_letters(text) for text in inputs_test])
     predictions = np.random.randint(0, 3, size=golds.shape)
 
     # Print the first five inputs, golds, and predictions for analysis
     for i in range(5):
-        print(f"Input {i+1}: {test_inputs[i]}")
+        print(f"Input {i+1}: {inputs_test[i]}")
         print(
-            f"Gold {i+1}: {count_letters(test_inputs[i]).tolist()}"
+            f"Gold {i+1}: {count_letters(inputs_test[i]).tolist()}"
         )
         print(f"Pred {i+1}: {predictions[i].tolist()}")
         print_line()
