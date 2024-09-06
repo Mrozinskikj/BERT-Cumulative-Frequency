@@ -4,9 +4,10 @@ import torch
 from nlp_engineer_assignment import Tokeniser, process_dataset
 
 
+tokeniser = Tokeniser(length=20)
+
 def test_tokeniser_length_correct():
     """Tests that tokeniser encoding outputs tensor of correct shape"""
-    tokeniser = Tokeniser(length=20)
     string = "yaraku is a japanese"
     tensor = tokeniser.encode(string)
     assert isinstance(tensor, torch.Tensor)
@@ -15,7 +16,6 @@ def test_tokeniser_length_correct():
 
 def test_tokeniser_length_incorrect():
     """Tests that tokeniser encoding catches input of incorrect length"""
-    tokeniser = Tokeniser(length=20)
     string = "hello world"
     try:
         tokeniser.encode(string)
@@ -26,7 +26,6 @@ def test_tokeniser_length_incorrect():
 
 def test_tokeniser_out_of_vocab():
     """Tests that tokeniser encoding catches out-of-vocabulary in input"""
-    tokeniser = Tokeniser(length=20)
     string = "Yaraku is a Japanese"
     try:
         tokeniser.encode(string)
@@ -37,7 +36,6 @@ def test_tokeniser_out_of_vocab():
 
 def test_tokeniser_decode():
     """Tests that tokeniser decoding outputs correct string"""
-    tokeniser = Tokeniser(length=20)
     string = tokeniser.decode(torch.tensor([24, 0, 17, 0, 10, 20, 26, 8, 18, 26, 0, 26, 9, 0, 15, 0, 13, 4, 18, 4]))
     assert string == "yaraku is a japanese"
 
@@ -50,7 +48,6 @@ def test_process_dataset_correct_batches():
         "s can also extend in",
         "erages between nine ",
     ]
-    tokeniser = Tokeniser(length=20)
     dataset = process_dataset(inputs, tokeniser, batch_size=2)
     assert dataset['input_ids'].shape == (2, 2, 20), f"Expected shape (2, 2, 20), but got {dataset['input_ids'].shape}"
     assert dataset['labels'].shape == (2, 2, 20), f"Expected shape (2, 2, 20), but got {dataset['labels'].shape}"
@@ -63,7 +60,6 @@ def test_process_dataset_trim_items():
         "ed by rank and file ",
         "s can also extend in",
     ]
-    tokeniser = Tokeniser(length=20)
     dataset = process_dataset(inputs, tokeniser, batch_size=2)
     assert dataset['input_ids'].shape == (1, 2, 20), f"Expected shape (1, 2, 20), but got {dataset['input_ids'].shape}"
     assert dataset['labels'].shape == (1, 2, 20), f"Expected shape (1, 2, 20), but got {dataset['labels'].shape}"
@@ -74,7 +70,6 @@ def test_process_dataset_empty():
     inputs = [
         "heir average albedo ",
     ]
-    tokeniser = Tokeniser(length=20)
     try:
         process_dataset(inputs, tokeniser, batch_size=2)
         assert False, "Expected ValueError, but no error was raised."
