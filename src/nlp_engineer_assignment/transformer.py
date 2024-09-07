@@ -142,6 +142,4 @@ class BERT(nn.Module):
 
 def train_classifier(dataset_train, dataset_test):
     model = BERT()
-    raise NotImplementedError(
-        "You should implement `train_classifier` in transformer.py"
-    )
+    return model
