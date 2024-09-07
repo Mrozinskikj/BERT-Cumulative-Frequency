@@ -117,7 +117,7 @@ class BERT(nn.Module):
         self.classifier = nn.Linear(embed_dim, 3) # output layer, predicting classes 0, 1, 2 for each position in sequence
 
 
-    def forward(self, input_ids: torch.Tensor):
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
         """
         Performs a forward pass, computing the logits for each class of each item of 'input_ids'.
 
@@ -140,26 +140,50 @@ class BERT(nn.Module):
         return logits
 
 
-def train_classifier(dataset_train, dataset_test, learning_rate=1e-6, epochs=1):
-    model = BERT()
+def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1) -> BERT:
+    """
+    Creates and trains a BERT model for cumulative frequency classification given a training dataset.
+
+    Parameters
+    ----------
+    dataset_train : dict
+        A dictionary containing the inputs and labels of the training data.
+        - 'input_ids' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of tokenised input strings.
+        - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of labels corresponding to input IDs.
+    dataset_train : dict
+        A dictionary containing the inputs and labels of the test data.
+        Refer to 'dataset_train'.
+    learning_rate : float, optional
+        The learning rate for the optimiser (magnitiude of weight updates per step). Defaults to 1e-6.
+    epochs : int, optional
+        The number of epochs for training. Each epoch corresponds to one full iteration through training data. Defaults to 1.
+
+    Returns
+    -------
+    BERT
+        The trained BERT model.
+    """
+    model = BERT() # initialise model
     model.train() # set model to training mode
 
-    optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # create AdamW optimiser
-    loss_fn = nn.CrossEntropyLoss() # init loss function, cross entropy for classification
+    optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # initialise AdamW optimiser
+    loss_fn = nn.CrossEntropyLoss() # initialise cross-entropy loss function for classification
 
-    batches = len(dataset_train['input_ids'])
-    for epoch in range(epochs):
-        for batch in range(batches):
+    batches = len(dataset_train['input_ids']) # number of batches in the training dataset
+    for epoch in range(epochs): # iterate through epochs
+        for batch in range(batches): # iterate through batches in epoch
 
-            logits = model(dataset_train['input_ids'][batch]) # feed inputs through model to get output logits
+            logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits
             logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
             labels = dataset_train['labels'][batch].view(-1) # flatten batch dimension: [batch_size * length]
             
-            loss = loss_fn(logits, labels) # calculate loss by comparing output logits to labels
+            loss = loss_fn(logits, labels) # calculate loss between output logits and labels
             
-            optimiser.zero_grad()
-            loss.backward()
-            optimiser.step()
+            optimiser.zero_grad() # zero the gradients from previous step (no gradient accumulation)
+            loss.backward() # backpropagate to compute gradients
+            optimiser.step() # update model weights
 
             print(f'step: {batch*(epoch+1)}/{batches*epochs} loss: {round(loss.item(),2)}')
     
