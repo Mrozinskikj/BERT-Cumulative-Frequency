@@ -140,6 +140,27 @@ class BERT(nn.Module):
         return logits
 
 
-def train_classifier(dataset_train, dataset_test):
+def train_classifier(dataset_train, dataset_test, learning_rate=1e-6, epochs=1):
     model = BERT()
+    model.train() # set model to training mode
+
+    optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # create AdamW optimiser
+    loss_fn = nn.CrossEntropyLoss() # init loss function, cross entropy for classification
+
+    batches = len(dataset_train['input_ids'])
+    for epoch in range(epochs):
+        for batch in range(batches):
+
+            logits = model(dataset_train['input_ids'][batch]) # feed inputs through model to get output logits
+            logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
+            labels = dataset_train['labels'][batch].view(-1) # flatten batch dimension: [batch_size * length]
+            
+            loss = loss_fn(logits, labels) # calculate loss by comparing output logits to labels
+            
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+
+            print(f'step: {batch*(epoch+1)}/{batches*epochs} loss: {round(loss.item(),2)}')
+    
     return model
