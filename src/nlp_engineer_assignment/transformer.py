@@ -142,9 +142,42 @@ class BERT(nn.Module):
 
 
 def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
+    """
+    Peforms model evaluation by computing the average loss of the entire test dataset. The average loss is printed and 'plot_data' is updated.
+
+    Parameters
+    ----------
+    model : BERT
+        An instance of the BERT model to be evaluated.
+    dataset_test : dict
+        A dictionary containing the inputs and labels of the test data.
+        - 'input_ids' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of tokenised input strings.
+        - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of labels corresponding to input IDs.
+    loss_fn : nn.CrossEntropyLoss
+        The loss function used to compute the loss between the predictions and labels.
+    plot_data : dict
+        A dictionary where the key represents the name of the variable and the value is a dictionary of timeline data.
+        The values are dictionaries structured as so:
+        - 'x': list
+            A list of x-coordinate values, representing the given training step.
+        - 'y': list
+            A list of y-coordinate values, representing the value of the variable at the given training step.
+    step_current : int
+        The current training step during evaluation.
+    step_total : int
+        The total number of training steps.
+
+    Returns
+    -------
+    dict
+        The updated plot data dictionary with the test loss added.
+    """
     model.eval()  # set model to evaluation mode
     batches = len(dataset_test['input_ids']) # number of batches in the test dataset
     loss_total = 0
+
     with torch.no_grad():  # disable gradient calculation
         for batch in range(batches):
             
@@ -165,6 +198,19 @@ def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plo
 
 
 def plot_train(plot_data: dict):
+    """
+    Displays a plot of the training timeline for various variables.
+
+    Parameters
+    ----------
+    plot_data : dict
+        A dictionary where the key represents the name of the variable and the value is a dictionary of timeline data.
+        The values are dictionaries structured as so:
+        - 'x': list
+            A list of x-coordinate values, representing the given training step.
+        - 'y': list
+            A list of y-coordinate values, representing the value of the variable at the given training step.
+    """
     fig, axs = plt.subplots(len(plot_data.keys()), 1, figsize=(8, 6), sharex=True) # create subplots
 
     for p,plot in enumerate(plot_data.keys()): # plot x,y of each subplot in plot_data
