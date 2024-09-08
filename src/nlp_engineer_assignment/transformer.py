@@ -141,6 +141,31 @@ class BERT(nn.Module):
         return logits
 
 
+def lr_scheduler(warmup_ratio: float, step_current: int, step_total: int) -> float:
+    """
+    Defines a custom learning rate scheduler (warmup and decay) to adjust learning rate based on current training step.
+
+    Parameters
+    ----------
+    warmup_ratio : float
+        The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup.
+    step_current : int
+        The current training step during evaluation.
+    step_total : int
+        The total number of training steps.
+
+    Returns
+    -------
+    float
+        The ratio that the learning rate will be multiplied by for the given training step.
+    """
+    warmup_steps = int(step_total*warmup_ratio)
+    if step_current < warmup_steps: # LR warmup for initial steps
+        return step_current/max(1,warmup_steps)
+    else: # linear LR decay for remaining steps
+        return (step_total-step_current) / max(1,step_total-warmup_steps)
+
+
 def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
     """
     Peforms model evaluation by computing the average loss of the entire test dataset. The average loss is printed and 'plot_data' is updated.
@@ -221,7 +246,7 @@ def plot_train(plot_data: dict):
     plt.show()
 
 
-def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, eval_every: int = 250, print_train: bool = False, plot: bool = True) -> BERT:
+def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, warmup_ratio: float = 0.1, eval_every: int = 250, print_train: bool = True, plot: bool = True) -> BERT:
     """
     Creates and trains a BERT model for cumulative frequency classification given a training dataset.
 
@@ -240,6 +265,9 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
         The learning rate for the optimiser (magnitiude of weight updates per step). Defaults to 1e-6.
     epochs : int, optional
         The number of epochs for training. Each epoch corresponds to one full iteration through training data. Defaults to 1.
+    warmup_ratio : float, optional
+        The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup. Defaults to 0.1.
+
     print_train : bool, optional
         Whether to print the training state at every training step. Defaults to False.
     plot : bool, optional
@@ -250,22 +278,24 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
     BERT
         The trained BERT model.
     """
-    plot_data = {'train':{'x':[],'y':[]}, 'test':{'x':[],'y':[]}} # dict storing x,y plot data for training progress
+    plot_data = {key: {'x':[], 'y':[]} for key in ['train','test','lr']} # dict storing x,y plot data for training progress
     
     model = BERT() # initialise model
     model.train() # set model to training mode
 
+    batches = len(dataset_train['input_ids']) # number of batches in the training dataset
+    step_total = batches*epochs
+
     optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # initialise AdamW optimiser
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimiser, lr_lambda=lambda step: lr_scheduler(warmup_ratio, step, step_total)) # create custom learning rate scheduler
     loss_fn = nn.CrossEntropyLoss() # initialise cross-entropy loss function for classification
 
     print("Beginning Training.")
     print_line()
 
-    batches = len(dataset_train['input_ids']) # number of batches in the training dataset
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
             step_current = batch*(epoch+1)
-            step_total = batches*epochs
             
             if batch%eval_every == 0: # perform evaluation on test split at set intervals
                 plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
@@ -279,11 +309,14 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
             optimiser.zero_grad() # zero the gradients from previous step (no gradient accumulation)
             loss.backward() # backpropagate to compute gradients
             optimiser.step() # update model weights
+            scheduler.step() # update learning rate
 
             plot_data['train']['x'].append(step_current)
             plot_data['train']['y'].append(loss.item())
+            plot_data['lr']['x'].append(step_current)
+            plot_data['lr']['y'].append(scheduler.get_last_lr()[0])
             if print_train:
-                print(f'step: {step_current}/{step_total} train loss: {round(loss.item(),2)}')
+                print(f'step: {step_current}/{step_total} train loss: {round(loss.item(),2)}, LR: {scheduler.get_last_lr()[0]:.2e}')
     
     if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
         plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
