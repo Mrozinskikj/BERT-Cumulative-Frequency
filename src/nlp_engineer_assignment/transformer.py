@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
 
 class BERTEmbedding(nn.Module):
@@ -140,7 +141,38 @@ class BERT(nn.Module):
         return logits
 
 
-def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1) -> BERT:
+def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss) -> float:
+    model.eval()  # set model to evaluation mode
+    batches = len(dataset_test['input_ids']) # number of batches in the test dataset
+    loss_total = 0
+    with torch.no_grad():  # disable gradient calculation
+        for batch in range(batches):
+            
+            logits = model(dataset_test['input_ids'][batch]) # forward pass to compute logits
+            logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
+            labels = dataset_test['labels'][batch].view(-1) # flatten batch dimension: [batch_size * length]
+
+            loss_batch = loss_fn(logits, labels) # calculate loss between output logits and labels
+            loss_total += loss_batch.item()
+
+    loss_average = loss_total / batches # loss is the average of all batches
+    print(f'eval loss: {round(loss_average,2)}')
+    model.train() # revert model to training mode
+    return loss_average
+
+
+def plot_train(plot_data: dict):
+    fig, axs = plt.subplots(len(plot_data.keys()), 1, figsize=(8, 6), sharex=True) # create subplots
+
+    for p,plot in enumerate(plot_data.keys()): # plot x,y of each subplot in plot_data
+        axs[p].plot(plot_data[plot]['x'],plot_data[plot]['y'])
+        axs[p].set_title(plot)
+    
+    plt.tight_layout()
+    plt.show()
+
+
+def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, eval_every: int = 250) -> BERT:
     """
     Creates and trains a BERT model for cumulative frequency classification given a training dataset.
 
@@ -165,6 +197,8 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
     BERT
         The trained BERT model.
     """
+    plot_data = {'train':{'x':[],'y':[]}, 'test':{'x':[],'y':[]}} # dict storing x,y plot data for training progress
+
     model = BERT() # initialise model
     model.train() # set model to training mode
 
@@ -174,6 +208,11 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
     batches = len(dataset_train['input_ids']) # number of batches in the training dataset
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
+            
+            if batch%eval_every == 0: # perform evaluation on test split at set intervals
+                loss_test = evaluate(model, dataset_test, loss_fn)
+                plot_data['test']['x'].append(batch)
+                plot_data['test']['y'].append(loss_test)
 
             logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits
             logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
@@ -185,6 +224,9 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
             loss.backward() # backpropagate to compute gradients
             optimiser.step() # update model weights
 
+            plot_data['train']['x'].append(batch)
+            plot_data['train']['y'].append(loss.item())
             print(f'step: {batch*(epoch+1)}/{batches*epochs} loss: {round(loss.item(),2)}')
     
+    plot_train(plot_data)
     return model
