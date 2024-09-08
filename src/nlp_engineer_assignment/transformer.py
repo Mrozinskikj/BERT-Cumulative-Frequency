@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
-
+from nlp_engineer_assignment.utils import print_line
 
 class BERTEmbedding(nn.Module):
     """
@@ -141,7 +141,7 @@ class BERT(nn.Module):
         return logits
 
 
-def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss) -> float:
+def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
     model.eval()  # set model to evaluation mode
     batches = len(dataset_test['input_ids']) # number of batches in the test dataset
     loss_total = 0
@@ -156,9 +156,12 @@ def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss) -> 
             loss_total += loss_batch.item()
 
     loss_average = loss_total / batches # loss is the average of all batches
-    print(f'eval loss: {round(loss_average,2)}')
     model.train() # revert model to training mode
-    return loss_average
+
+    plot_data['test']['x'].append(step_current)
+    plot_data['test']['y'].append(loss_average)
+    print(f'step: {step_current}/{step_total} eval loss: {round(loss_average,2)}')
+    return plot_data
 
 
 def plot_train(plot_data: dict):
@@ -172,7 +175,7 @@ def plot_train(plot_data: dict):
     plt.show()
 
 
-def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, eval_every: int = 250) -> BERT:
+def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, eval_every: int = 250, print_train: bool = False, plot: bool = True) -> BERT:
     """
     Creates and trains a BERT model for cumulative frequency classification given a training dataset.
 
@@ -191,6 +194,10 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
         The learning rate for the optimiser (magnitiude of weight updates per step). Defaults to 1e-6.
     epochs : int, optional
         The number of epochs for training. Each epoch corresponds to one full iteration through training data. Defaults to 1.
+    print_train : bool, optional
+        Whether to print the training state at every training step. Defaults to False.
+    plot : bool, optional
+        Whether to display a plot of the training timeline once training is finished. Defaults to True.
 
     Returns
     -------
@@ -198,21 +205,24 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
         The trained BERT model.
     """
     plot_data = {'train':{'x':[],'y':[]}, 'test':{'x':[],'y':[]}} # dict storing x,y plot data for training progress
-
+    
     model = BERT() # initialise model
     model.train() # set model to training mode
 
     optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # initialise AdamW optimiser
     loss_fn = nn.CrossEntropyLoss() # initialise cross-entropy loss function for classification
 
+    print("Beginning Training.")
+    print_line()
+
     batches = len(dataset_train['input_ids']) # number of batches in the training dataset
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
+            step_current = batch*(epoch+1)
+            step_total = batches*epochs
             
             if batch%eval_every == 0: # perform evaluation on test split at set intervals
-                loss_test = evaluate(model, dataset_test, loss_fn)
-                plot_data['test']['x'].append(batch)
-                plot_data['test']['y'].append(loss_test)
+                plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
 
             logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits
             logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
@@ -224,9 +234,15 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
             loss.backward() # backpropagate to compute gradients
             optimiser.step() # update model weights
 
-            plot_data['train']['x'].append(batch)
+            plot_data['train']['x'].append(step_current)
             plot_data['train']['y'].append(loss.item())
-            print(f'step: {batch*(epoch+1)}/{batches*epochs} loss: {round(loss.item(),2)}')
+            if print_train:
+                print(f'step: {step_current}/{step_total} train loss: {round(loss.item(),2)}')
     
-    plot_train(plot_data)
+    if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
+        plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
+    print("Finishing Training.")
+    print_line()
+    if plot:
+        plot_train(plot_data)
     return model
