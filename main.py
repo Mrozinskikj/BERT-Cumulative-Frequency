@@ -8,22 +8,55 @@ train_classifier, Tokeniser, process_dataset
     
 
 def train_model():
+    params = {
+        'seed': 0,
+        'batch_size': 4,
+        'learning_rate': 1e-6,
+        'epochs': 1,
+        'warmup_ratio': 0.1,
+        'eval_every': 250,
+        'embed_dim': 768,
+        'dropout': 0.1,
+        'attention_heads': 12,
+        'layers': 2
+    }
+    
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     
-    seed=0
-    random.seed(seed)
-    torch.seed(seed)
+    random.seed(params['seed'])
+    torch.manual_seed(params['seed'])
     
 
     tokeniser = Tokeniser()
 
     inputs_train = read_inputs(os.path.join(cur_dir, "data", "train.txt"))
-    dataset_train = process_dataset(inputs_train, tokeniser)
+    dataset_train = process_dataset(
+        inputs_train,
+        tokeniser,
+        params['batch_size'],
+    )
     
     inputs_test = read_inputs(os.path.join(cur_dir, "data", "test.txt"))
-    dataset_test = process_dataset(inputs_test, tokeniser)
+    dataset_test = process_dataset(
+        inputs_test,
+        tokeniser,
+        params['batch_size'],
+    )
 
-    model = train_classifier(dataset_train, dataset_test)
+    model = train_classifier(
+        dataset_train,
+        dataset_test,
+        params['embed_dim'],
+        params['dropout'],
+        params['attention_heads'],
+        params['layers'],
+        params['learning_rate'],
+        params['epochs'],
+        params['warmup_ratio'],
+        params['eval_every'],
+        print_train=False,
+        plot=True,
+    )
 
     test_accuracy(model, dataset_test)
 

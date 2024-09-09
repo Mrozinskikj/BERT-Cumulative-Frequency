@@ -24,7 +24,10 @@ class Tokeniser:
     decode(tokens: torch.Tensor) -> str
         Decodes a tensor of token IDs into a string.
     """
-    def __init__(self, length: int = 20):
+    def __init__(
+        self,
+        length: int = 20,
+    ):
         """
         Initialises the tokeniser, defining the vocabulary.
 
@@ -40,7 +43,11 @@ class Tokeniser:
         self.char_to_id = {ch: i for i, ch in enumerate(vocab)} # dictionary of character to token id
         self.id_to_char = {i: ch for i, ch in enumerate(vocab)} # dictionary of token id to character
     
-    def encode(self, string: str) -> torch.Tensor:
+    
+    def encode(
+        self,
+        string: str,
+    ) -> torch.Tensor:
         """
         Encodes a string into a tensor of token IDs.
 
@@ -71,7 +78,11 @@ class Tokeniser:
         tokens_tensor = torch.tensor(tokens_list, dtype=torch.long) # convert token list into tensor
         return tokens_tensor
     
-    def decode(self, tokens: torch.Tensor) -> str:
+    
+    def decode(
+        self,
+        tokens: torch.Tensor,
+    ) -> str:
         """
         Decodes a tensor of token IDs into a string.
 
@@ -88,7 +99,10 @@ class Tokeniser:
         return "".join([self.id_to_char[i.item()] for i in tokens])
 
 
-def batch_tensor(tensor_list: list, batch_size: int) -> torch.Tensor:
+def batch_tensor(
+    tensor_list: list,
+    batch_size: int,
+) -> torch.Tensor:
     """
     Converts a list of 1D tensors into a batched 3D tensor. Used with 'process_dataset'.
 
@@ -116,7 +130,11 @@ def batch_tensor(tensor_list: list, batch_size: int) -> torch.Tensor:
     return batched_tensor
     
 
-def process_dataset(inputs, tokeniser: Tokeniser, batch_size: int = 4) -> dict:
+def process_dataset(
+    inputs: list, 
+    tokeniser: Tokeniser,
+    batch_size: int,
+) -> dict:
     """
     Processes raw data into input tokens and labels, creating a dataset dictionary of batched tensors.
 
@@ -126,8 +144,8 @@ def process_dataset(inputs, tokeniser: Tokeniser, batch_size: int = 4) -> dict:
         Train or test data examples split into a list.
     tokeniser : Tokeniser
         An instance of the Tokeniser class used to encode the input.
-    batch_size : int, optional
-        The number of items to include in each batch. Defaults to 4.
+    batch_size : int
+        The number of items to include in each batch.
 
     Returns
     -------

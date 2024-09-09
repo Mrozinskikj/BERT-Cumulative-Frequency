@@ -23,7 +23,13 @@ class BERTEmbedding(nn.Module):
     forward(input_ids: torch.Tensor) -> torch.Tensor
         Performs a forward pass, computing the BERT embeddings used as model input for a given 'input_ids'.
     """
-    def __init__(self, vocab_size: int, length: int, embed_dim: int, dropout: int):
+    def __init__(
+        self,
+        embed_dim: int,
+        dropout: int,
+        vocab_size: int,
+        length: int,
+    ):
         """
         Initialises the BERT Embedding.
 
@@ -46,7 +52,10 @@ class BERTEmbedding(nn.Module):
         self.dropout = nn.Dropout(dropout) # dropout layer for regularisation
 
 
-    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        input_ids: torch.Tensor
+    ) -> torch.Tensor:
         """
         Performs a forward pass, computing the BERT embeddings used as model input for a given 'input_ids'.
 
@@ -90,35 +99,46 @@ class BERT(nn.Module):
     forward(input_ids: torch.Tensor) -> torch.Tensor
         Performs a forward pass, computing the logits for each class of each item of 'input_ids'.
     """
-    def __init__(self, vocab_size: int = 27, length: int = 20, embed_dim: int = 768, dropout: int = 0.1, attention_heads: int = 12, layers: int = 2):
+    def __init__(
+        self,
+        embed_dim: int,
+        dropout: int,
+        attention_heads: int,
+        layers: int,
+        vocab_size: int = 27,
+        length: int = 20,
+    ):
         """
         Initialises the BERT Model.
 
         Parameters
         ----------
+        embed_dim : int
+            Dimensionality of the token and position embeddings.
+        dropout : int
+            Dropout probability, used for regularisation.
+        attention_heads : int
+            The number of attention heads in the Transformer encoder layer.
+        layers : int
+            The number of Transformer encoder layers.
         vocab_size : int, optional
             Total number of unique tokens. Defaults to 27.
         length : int, optional
             Expected length of input strings. Defaults to 20.
-        embed_dim : int, optional
-            Dimensionality of the token and position embeddings. Defaults to 768.
-        dropout : int, optional
-            Dropout probability, used for regularisation. Defaults to 0.1.
-        attention_heads : int, optional
-            The number of attention heads in the Transformer encoder layer. Defaults to 12.
-        layers : int, optional
-            The number of Transformer encoder layers. Defaults to 2.
         """
         super().__init__()  # initialise the nn.Module parent class
         
-        self.embedding = BERTEmbedding(vocab_size, length, embed_dim, dropout) # embedding layer which combines token and position embeddings
+        self.embedding = BERTEmbedding(embed_dim, dropout, vocab_size, length) # embedding layer which combines token and position embeddings
         encoder_layer = nn.TransformerEncoderLayer(embed_dim, attention_heads, dim_feedforward=embed_dim * 4, dropout=dropout, activation="gelu") # instance of transformer encoder layer
         self.encoder_block = nn.TransformerEncoder(encoder_layer, layers) # full transformer encoder consisting of multiple layers
 
         self.classifier = nn.Linear(embed_dim, 3) # output layer, predicting classes 0, 1, 2 for each position in sequence
 
 
-    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        input_ids: torch.Tensor
+    ) -> torch.Tensor:
         """
         Performs a forward pass, computing the logits for each class of each item of 'input_ids'.
 
@@ -141,7 +161,11 @@ class BERT(nn.Module):
         return logits
 
 
-def lr_scheduler(warmup_ratio: float, step_current: int, step_total: int) -> float:
+def lr_scheduler(
+    warmup_ratio: float,
+    step_current: int,
+    step_total: int
+) -> float:
     """
     Defines a custom learning rate scheduler (warmup and decay) to adjust learning rate based on current training step.
 
@@ -166,7 +190,14 @@ def lr_scheduler(warmup_ratio: float, step_current: int, step_total: int) -> flo
         return (step_total-step_current) / max(1,step_total-warmup_steps)
 
 
-def evaluate(model: BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
+def evaluate(
+    model: BERT,
+    dataset_test: dict,
+    loss_fn: nn.CrossEntropyLoss,
+    plot_data: dict,
+    step_current: int,
+    step_total: int
+) -> float:
     """
     Peforms model evaluation by computing the average loss of the entire test dataset. The average loss is printed and 'plot_data' is updated.
 
@@ -222,7 +253,9 @@ def evaluate(model: BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot
     return plot_data
 
 
-def plot_train(plot_data: dict):
+def plot_train(
+    plot_data: dict
+):
     """
     Displays a plot of the training timeline for various variables.
 
@@ -246,7 +279,20 @@ def plot_train(plot_data: dict):
     plt.show()
 
 
-def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: float = 1e-6, epochs: int = 1, warmup_ratio: float = 0.1, eval_every: int = 250, print_train: bool = True, plot: bool = True) -> BERT:
+def train_classifier(
+    dataset_train: dict,
+    dataset_test: dict,
+    embed_dim: int,
+    dropout: int,
+    attention_heads: int,
+    layers: int,
+    learning_rate: float,
+    epochs: int,
+    warmup_ratio: float,
+    eval_every: int,
+    print_train: bool = False,
+    plot: bool = True
+) -> BERT:
     """
     Creates and trains a BERT model for cumulative frequency classification given a training dataset.
 
@@ -261,12 +307,20 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
     dataset_train : dict
         A dictionary containing the inputs and labels of the test data.
         Refer to 'dataset_train'.
-    learning_rate : float, optional
-        The learning rate for the optimiser (magnitiude of weight updates per step). Defaults to 1e-6.
-    epochs : int, optional
-        The number of epochs for training. Each epoch corresponds to one full iteration through training data. Defaults to 1.
-    warmup_ratio : float, optional
-        The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup. Defaults to 0.1.
+    embed_dim : int
+        Dimensionality of the token and position embeddings.
+    dropout : int
+        Dropout probability, used for regularisation.
+    attention_heads : int
+        The number of attention heads in the Transformer encoder layer.
+    layers : int
+        The number of Transformer encoder layers.
+    learning_rate : float
+        The learning rate for the optimiser (magnitiude of weight updates per step).
+    epochs : int
+        The number of epochs for training. Each epoch corresponds to one full iteration through training data.
+    warmup_ratio : float
+        The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup.
 
     print_train : bool, optional
         Whether to print the training state at every training step. Defaults to False.
@@ -280,7 +334,12 @@ def train_classifier(dataset_train: dict, dataset_test: dict, learning_rate: flo
     """
     plot_data = {key: {'x':[], 'y':[]} for key in ['train','test','lr']} # dict storing x,y plot data for training progress
     
-    model = BERT() # initialise model
+    model = BERT(
+        embed_dim,
+        dropout,
+        attention_heads,
+        layers
+    ) # initialise model
     model.train() # set model to training mode
 
     batches = len(dataset_train['input_ids']) # number of batches in the training dataset
