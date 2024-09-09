@@ -1,4 +1,5 @@
 import torch
+import random
 from nlp_engineer_assignment import count_letters, print_line
 
 
@@ -145,6 +146,7 @@ def process_dataset(inputs, tokeniser: Tokeniser, batch_size: int = 4) -> dict:
     if len(inputs) < batch_size:
         raise ValueError("Input list is too short for a single batch.")
 
+    random.shuffle(inputs) # shuffle incase inputs are ordered
     input_ids_list = [tokeniser.encode(text) for text in inputs] # list of token tensors for each input
     labels_list = [count_letters(text) for text in inputs] # list of label tensors for each input
 

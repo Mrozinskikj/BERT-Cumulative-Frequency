@@ -1,5 +1,7 @@
 import os
 import uvicorn
+import random
+import torch
 
 from nlp_engineer_assignment import read_inputs, test_accuracy,\
 train_classifier, Tokeniser, process_dataset
@@ -7,10 +9,11 @@ train_classifier, Tokeniser, process_dataset
 
 def train_model():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-
-    ###
-    # Setup
-    ###
+    
+    seed=0
+    random.seed(seed)
+    torch.seed(seed)
+    
 
     tokeniser = Tokeniser()
 
