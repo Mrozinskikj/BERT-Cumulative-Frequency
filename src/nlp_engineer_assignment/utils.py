@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
 
 
 def count_letters(text: str) -> torch.Tensor:
@@ -72,7 +73,10 @@ def score(
     return torch.sum(labels == predictions).float() / labels.numel()
 
 
-def test_accuracy(model: 'BERT', dataset_test: torch.Tensor):
+def test_accuracy(
+    model: 'BERT',
+    dataset_test: torch.Tensor
+):
     """
     Compute the model predictions of every example in 'dataset_test' and calculate score comparing to ground truth.
 
@@ -97,3 +101,34 @@ def test_accuracy(model: 'BERT', dataset_test: torch.Tensor):
     
     print(f"Test Accuracy: {100.0 * score(predictions, labels):.2f}%") # calculate score
     print_line()
+    
+
+def plot_train(plot_data: dict):
+    """
+    Displays a plot of the training timeline for various variables.
+
+    Parameters
+    ----------
+    plot_data : dict
+        A dictionary of x and y timeline data of training progress.
+        - 'train' : dict
+            Timeline data for the training loss.
+            - 'x': list
+                A list of x-coordinate values, representing the given training step.
+            - 'y': list
+                A list of y-coordinate values, representing the value at the given training step.
+        - 'test' : dict
+            Timeline data for the validation loss.
+            Refer to 'train'.
+        - 'lr' : dict
+            Timeline data for the learning rate.
+            Refer to 'train'.
+    """
+    fig, axs = plt.subplots(len(plot_data.keys()), 1, figsize=(8, 6), sharex=True) # create subplots
+
+    for p,plot in enumerate(plot_data.keys()): # plot x,y of each subplot in plot_data
+        axs[p].plot(plot_data[plot]['x'],plot_data[plot]['y'])
+        axs[p].set_title(plot)
+    
+    plt.tight_layout()
+    plt.show()

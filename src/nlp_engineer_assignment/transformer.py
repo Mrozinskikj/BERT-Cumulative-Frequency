@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
-from nlp_engineer_assignment.utils import print_line
+from nlp_engineer_assignment.utils import print_line, plot_train
+import time
 
 class BERTEmbedding(nn.Module):
     """
@@ -214,12 +214,19 @@ def evaluate(
     loss_fn : nn.CrossEntropyLoss
         The loss function used to compute the loss between the predictions and labels.
     plot_data : dict
-        A dictionary where the key represents the name of the variable and the value is a dictionary of timeline data.
-        The values are dictionaries structured as so:
-        - 'x': list
-            A list of x-coordinate values, representing the given training step.
-        - 'y': list
-            A list of y-coordinate values, representing the value of the variable at the given training step.
+        A dictionary of x and y timeline data of training progress.
+        - 'train' : dict
+            Timeline data for the training loss.
+            - 'x': list
+                A list of x-coordinate values, representing the given training step.
+            - 'y': list
+                A list of y-coordinate values, representing the value at the given training step.
+        - 'test' : dict
+            Timeline data for the validation loss.
+            Refer to 'train'.
+        - 'lr' : dict
+            Timeline data for the learning rate.
+            Refer to 'train'.
     step_current : int
         The current training step during evaluation.
     step_total : int
@@ -251,32 +258,6 @@ def evaluate(
     plot_data['test']['y'].append(loss_average)
     print(f'step: {step_current}/{step_total} eval loss: {round(loss_average,2)}')
     return plot_data
-
-
-def plot_train(
-    plot_data: dict
-):
-    """
-    Displays a plot of the training timeline for various variables.
-
-    Parameters
-    ----------
-    plot_data : dict
-        A dictionary where the key represents the name of the variable and the value is a dictionary of timeline data.
-        The values are dictionaries structured as so:
-        - 'x': list
-            A list of x-coordinate values, representing the given training step.
-        - 'y': list
-            A list of y-coordinate values, representing the value of the variable at the given training step.
-    """
-    fig, axs = plt.subplots(len(plot_data.keys()), 1, figsize=(8, 6), sharex=True) # create subplots
-
-    for p,plot in enumerate(plot_data.keys()): # plot x,y of each subplot in plot_data
-        axs[p].plot(plot_data[plot]['x'],plot_data[plot]['y'])
-        axs[p].set_title(plot)
-    
-    plt.tight_layout()
-    plt.show()
 
 
 def train_classifier(
@@ -351,6 +332,7 @@ def train_classifier(
 
     print("Beginning Training.")
     print_line()
+    start_time = time.time()
 
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
@@ -379,7 +361,7 @@ def train_classifier(
     
     if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
         plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
-    print("Finishing Training.")
+    print(f"Finishing Training. Time taken: {(time.time()-start_time):.2f} seconds.")
     print_line()
     if plot:
         plot_train(plot_data)
