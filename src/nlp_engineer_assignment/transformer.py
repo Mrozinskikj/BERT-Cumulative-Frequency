@@ -166,7 +166,7 @@ def lr_scheduler(warmup_ratio: float, step_current: int, step_total: int) -> flo
         return (step_total-step_current) / max(1,step_total-warmup_steps)
 
 
-def evaluate(model : BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
+def evaluate(model: BERT, dataset_test: dict, loss_fn: nn.CrossEntropyLoss, plot_data: dict, step_current: int, step_total: int) -> float:
     """
     Peforms model evaluation by computing the average loss of the entire test dataset. The average loss is printed and 'plot_data' is updated.
 

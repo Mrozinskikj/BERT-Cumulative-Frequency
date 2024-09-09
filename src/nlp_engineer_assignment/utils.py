@@ -51,22 +51,49 @@ def read_inputs(path: str) -> list:
 
 
 def score(
-    golds: np.array,
-    predictions: np.array
+    predictions: torch.Tensor,
+    labels: torch.Tensor
 ) -> float:
     """
     Compute the accuracy of the predictions
 
     Parameters
     ----------
-    golds : np.array
-        Ground truth labels
-    predictions : np.array
-        Predicted labels
+    predictions : torch.Tensor (shape [examples, length])
+        Predicted labels.
+    labels : torch.Tensor (shape [examples, length])
+        Ground truth labels.
 
     Returns
     -------
     float
         Accuracy of the predictions
     """
-    return float(np.sum(golds == predictions)) / len(golds.flatten())
+    return torch.sum(labels == predictions).float() / labels.numel()
+
+
+def test_accuracy(model: 'BERT', dataset_test: torch.Tensor):
+    """
+    Compute the model predictions of every example in 'dataset_test' and calculate score comparing to ground truth.
+
+    Parameters
+    ----------
+    model : BERT
+        The BERT model for computing predictions with.
+    labels : dict
+        - 'input_ids' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of tokenised input strings.
+        - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+            The batched tensor of labels corresponding to input IDs.
+    """
+    predictions_list = [] # list to store every batch of predictions
+    for batch in dataset_test['input_ids']:
+        logits = model(batch) # derive the logits of one batch of inputs
+        prediction = torch.argmax(logits, dim=-1) # prediction is the highest value logit for each item in sequence
+        predictions_list.append(prediction)
+    
+    predictions = torch.stack(predictions_list).view(1000, 20) # convert list to tensor and flatten batch dimension
+    labels = dataset_test['labels'].view(1000, 20) # flatten batch dimension of labels
+    
+    print(f"Test Accuracy: {100.0 * score(predictions, labels):.2f}%") # calculate score
+    print_line()

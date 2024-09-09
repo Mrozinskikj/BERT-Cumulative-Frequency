@@ -1,10 +1,9 @@
-import numpy as np
 import os
 import uvicorn
 
-from nlp_engineer_assignment import count_letters, print_line, read_inputs, \
-    score, train_classifier, Tokeniser, process_dataset
-
+from nlp_engineer_assignment import read_inputs, test_accuracy,\
+train_classifier, Tokeniser, process_dataset
+    
 
 def train_model():
     cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,35 +14,15 @@ def train_model():
 
     tokeniser = Tokeniser()
 
-    inputs_train = read_inputs(
-        os.path.join(cur_dir, "data", "train.txt")
-    )
+    inputs_train = read_inputs(os.path.join(cur_dir, "data", "train.txt"))
     dataset_train = process_dataset(inputs_train, tokeniser)
-
-    inputs_test = read_inputs(
-        os.path.join(cur_dir, "data", "test.txt")
-    )
+    
+    inputs_test = read_inputs(os.path.join(cur_dir, "data", "test.txt"))
     dataset_test = process_dataset(inputs_test, tokeniser)
 
     model = train_classifier(dataset_train, dataset_test)
 
-    # TODO: Extract predictions from the model and save it to a
-    # variable called `predictions`. Observe the shape of the
-    # example random predictions.
-    golds = np.stack([count_letters(text) for text in inputs_test])
-    predictions = np.random.randint(0, 3, size=golds.shape)
-
-    # Print the first five inputs, golds, and predictions for analysis
-    for i in range(5):
-        print(f"Input {i+1}: {inputs_test[i]}")
-        print(
-            f"Gold {i+1}: {count_letters(inputs_test[i]).tolist()}"
-        )
-        print(f"Pred {i+1}: {predictions[i].tolist()}")
-        print_line()
-
-    print(f"Test Accuracy: {100.0 * score(golds, predictions):.2f}%")
-    print_line()
+    test_accuracy(model, dataset_test)
 
 
 if __name__ == "__main__":
