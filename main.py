@@ -4,7 +4,7 @@ import random
 import torch
 
 from nlp_engineer_assignment import read_inputs, test_accuracy,\
-train_classifier, Tokeniser, process_dataset
+train_classifier, Tokeniser, process_dataset, BERT
     
 
 def train_model():
@@ -42,14 +42,18 @@ def train_model():
         tokeniser,
         params['batch_size'],
     )
-
-    model = train_classifier(
-        dataset_train,
-        dataset_test,
+    
+    model = BERT(
         params['embed_dim'],
         params['dropout'],
         params['attention_heads'],
         params['layers'],
+    ) # initialise model
+
+    model = train_classifier(
+        model,
+        dataset_train,
+        dataset_test,
         params['learning_rate'],
         params['epochs'],
         params['warmup_ratio'],

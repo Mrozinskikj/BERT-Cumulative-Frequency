@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from nlp_engineer_assignment.transformer import BERT, BERTEmbedding
+from nlp_engineer_assignment.train import BERT, BERTEmbedding
 from nlp_engineer_assignment import Tokeniser, process_dataset
 
 tokeniser = Tokeniser(length=20)
