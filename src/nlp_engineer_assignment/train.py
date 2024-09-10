@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from nlp_engineer_assignment.utils import print_line, plot_train
-from nlp_engineer_assignment.model import BERT
+from nlp_engineer_assignment.model_high import BERT
 import time
 
 
