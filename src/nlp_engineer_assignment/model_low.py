@@ -149,9 +149,9 @@ class AttentionHead(nn.Module):
         scores = scores / (self.head_size**0.5) # divide by sqrt of head size to normalise to unit variance. increases stability- high variance would make softmax sharp
 
         attn_weights = nn.functional.softmax(scores, dim=-1) # convert scores into probability distribution
-        attn_weights = self.dropout(attn_weights) # apply dropout for regularisation
 
         output = torch.matmul(attn_weights, value) # output is the weighted sum of values
+        output = self.dropout(output) # apply dropout for regularisation
         return output
 
 
