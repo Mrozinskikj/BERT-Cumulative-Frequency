@@ -132,3 +132,42 @@ def plot_train(plot_data: dict):
     
     plt.tight_layout()
     plt.show()
+    
+
+def load_model(
+    model: 'BERT',
+    model_path: str
+    ) -> 'BERT':
+    """
+    Loads a model saved in a local directory.
+
+    Parameters
+    ----------
+    model : BERT
+        An instance of the model class, not containing the saved parameters.
+    model_path : str
+        The path of the saved model parameters, to be loaded into 'model'.
+    """
+    model.load_state_dict(torch.load(model_path))
+    print(f"Model successfully loaded from {model_path}")
+    print_line()
+    return model
+
+
+def save_model(
+    model: 'BERT',
+    model_path: str
+    ) -> 'BERT':
+    """
+    Saves a trained model to a local directory.
+
+    Parameters
+    ----------
+    model : BERT
+        An instance of the trained model to be saved.
+    model_path : str
+        The to save the trained model parameters into.
+    """
+    print(f"Model successfully saved to {model_path}")
+    print_line()
+    torch.save(model.state_dict(), model_path)

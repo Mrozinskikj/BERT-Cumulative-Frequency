@@ -1,6 +1,6 @@
 from .train import train_classifier
 from .model_low import BERT
-from .utils import count_letters, print_line, read_inputs, score, test_accuracy, plot_train
+from .utils import count_letters, print_line, read_inputs, score, test_accuracy, plot_train, load_model, save_model
 from .dataset import Tokeniser, process_dataset
 
 __all__ = [

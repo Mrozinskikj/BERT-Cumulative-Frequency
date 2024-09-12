@@ -4,10 +4,15 @@ import random
 import torch
 
 from nlp_engineer_assignment import read_inputs, test_accuracy,\
-train_classifier, Tokeniser, process_dataset, BERT
-    
+train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model
+
 
 def train_model():
+    
+    should_load = True
+    should_save = True
+    model_path = 'data/model.pth'
+    
     params = {
         'seed': 0,
         'batch_size': 4,
@@ -50,17 +55,23 @@ def train_model():
         params['layers'],
     ) # initialise model
 
-    model = train_classifier(
-        model,
-        dataset_train,
-        dataset_test,
-        params['learning_rate'],
-        params['epochs'],
-        params['warmup_ratio'],
-        params['eval_every'],
-        print_train=False,
-        plot=True,
-    )
+    if should_load:
+        model = load_model(model, os.path.join(cur_dir, model_path))
+    else:
+        model = train_classifier(
+            model,
+            dataset_train,
+            dataset_test,
+            params['learning_rate'],
+            params['epochs'],
+            params['warmup_ratio'],
+            params['eval_every'],
+            print_train=False,
+            plot=True,
+        )
+        if should_save:
+            save_model(model, os.path.join(cur_dir, model_path))
+            
 
     test_accuracy(model, dataset_test)
 

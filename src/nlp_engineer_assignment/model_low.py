@@ -446,7 +446,7 @@ class BERT(nn.Module):
 
         self.classifier = nn.Linear(embed_dim, 3) # output layer, predicting classes 0, 1, 2 for each position in sequence
 
-        print(f"Model created. Architecture:\n{self}")
+        #print(f"Model created. Architecture:\n{self}")
         print_line()
 
 
