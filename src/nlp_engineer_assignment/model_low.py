@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from nlp_engineer_assignment.utils import print_line
 
 
 class LayerNorm(nn.Module):
@@ -445,9 +444,6 @@ class BERT(nn.Module):
         ]) # sequence of transformer layers
 
         self.classifier = nn.Linear(embed_dim, 3) # output layer, predicting classes 0, 1, 2 for each position in sequence
-
-        print(f"Model created.")
-        print_line()
 
 
     def forward(

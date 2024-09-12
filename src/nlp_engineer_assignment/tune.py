@@ -5,23 +5,16 @@ from functools import partial
 
 from nlp_engineer_assignment import BERT, train_classifier, print_line
 
-def objective(params_list, param_names, dataset_train, dataset_test):
-    params = {
-        'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        'seed': 0,
-        'batch_size': 4,
-        'learning_rate': 1e-5,
-        'epochs': 1,
-        'warmup_ratio': 0.1,
-        'eval_every': 250,
-        'embed_dim': 768,
-        'dropout': 0.1,
-        'attention_heads': 2,
-        'layers': 2
-    }
+def objective(params_list, params, param_names, dataset_train, dataset_test, counter):
+
     params_dict = dict(zip(param_names, params_list))
+    params_dict_formatted = {k:f"{v:.2e}" if isinstance(v, float) else v for k,v in params_dict.items()} # round all floats in the dictionary
     params.update(params_dict)
 
+    counter['iteration'] += 1
+    print(f"{counter['iteration']}/{20}: {params_dict_formatted}")
+
+    
     try:
         model = BERT(
             embed_dim=params['embed_dim'],
@@ -38,26 +31,37 @@ def objective(params_list, param_names, dataset_train, dataset_test):
             epochs=params['epochs'],
             warmup_ratio=params['warmup_ratio'],
             eval_every=params['eval_every'],
-            print_train=False,
+            allow_print=False,
             plot=False
         )
     except ValueError as e:
         print(f"Invalid parameter combination: {e}")
         return float('inf')
-
+    
+    print(f"{counter['iteration']}/{20} loss: {loss}")
     return loss
 
 
-def tune_hyperparameters(dataset_train, dataset_test):
-    search_space = {
-    'learning_rate': Real(1e-6, 1e-3, prior='log-uniform'),
-    'dropout': Real(0.0, 0.5),
-    'layers': Integer(1, 8)
-    }
+def tune_hyperparameters(
+        search_space,
+        params,
+        dataset_train,
+        dataset_test,
+        iterations
+    ):
+    counter = {'iteration': 0, 'total': iterations} # must store iterations counter as mutable data type
+
     param_names = list(search_space.keys())
     dimensions = list(search_space.values())
     
-    objective_data = partial(objective, param_names=param_names, dataset_train=dataset_train, dataset_test=dataset_test)
+    objective_data = partial(
+        objective,
+        params=params,
+        param_names=param_names,
+        dataset_train=dataset_train,
+        dataset_test=dataset_test,
+        counter=counter
+    )
     
     print("Beginning hyperparameter tuning.")
     print_line()
@@ -65,7 +69,7 @@ def tune_hyperparameters(dataset_train, dataset_test):
     result = gp_minimize(
         func=objective_data,
         dimensions=dimensions,
-        n_calls=20,
+        n_calls=iterations,
         random_state=0
     )
     print(result)

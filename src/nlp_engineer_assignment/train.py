@@ -40,7 +40,8 @@ def evaluate(
     loss_fn: nn.CrossEntropyLoss,
     plot_data: dict,
     step_current: int,
-    step_total: int
+    step_total: int,
+    allow_print: bool
 ) -> float:
     """
     Peforms model evaluation by computing the average loss of the entire test dataset. The average loss is printed and 'plot_data' is updated.
@@ -48,7 +49,7 @@ def evaluate(
     Parameters
     ----------
     model : BERT
-        An instance of the BERT model to be evaluated.
+        An instance of the BERT model to be evaluated.https://www.bing.com/search?&q=install+cuda
     dataset_test : dict
         A dictionary containing the inputs and labels of the test data.
         - 'input_ids' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
@@ -75,6 +76,8 @@ def evaluate(
         The current training step during evaluation.
     step_total : int
         The total number of training steps.
+    allow_print : bool
+        Whether to print the training state at every validation step.
 
     Returns
     -------
@@ -102,7 +105,8 @@ def evaluate(
 
     plot_data['test']['x'].append(step_current)
     plot_data['test']['y'].append(loss_average)
-    print(f'step: {step_current}/{step_total} eval loss: {round(loss_average,2)}')
+    if allow_print:
+        print(f'step: {step_current}/{step_total} eval loss: {round(loss_average,2)}')
     return plot_data, loss_average
 
 
@@ -114,7 +118,7 @@ def train_classifier(
     epochs: int,
     warmup_ratio: float,
     eval_every: int,
-    print_train: bool = False,
+    allow_print: bool = True,
     plot: bool = True
 ) -> BERT:
     """
@@ -140,8 +144,8 @@ def train_classifier(
     warmup_ratio : float
         The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup.
 
-    print_train : bool, optional
-        Whether to print the training state at every training step. Defaults to False.
+    allow_print : bool, optional
+        Whether to print the training state at every validation step. Defaults to True.
     plot : bool, optional
         Whether to display a plot of the training timeline once training is finished. Defaults to True.
 
@@ -163,8 +167,9 @@ def train_classifier(
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimiser, lr_lambda=lambda step: lr_scheduler(warmup_ratio, step, step_total)) # create custom learning rate scheduler
     loss_fn = nn.CrossEntropyLoss() # initialise cross-entropy loss function for classification
 
-    print("Beginning Training.")
-    print_line()
+    if allow_print:
+        print("Beginning Training.")
+        print_line()
     start_time = time.time()
 
     for epoch in range(epochs): # iterate through epochs
@@ -172,7 +177,7 @@ def train_classifier(
             step_current = batch*(epoch+1)
             
             if batch%eval_every == 0: # perform evaluation on test split at set intervals
-                plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
+                plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total, allow_print)
 
             logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits
             logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
@@ -189,13 +194,12 @@ def train_classifier(
             plot_data['train']['y'].append(loss.item())
             plot_data['lr']['x'].append(step_current)
             plot_data['lr']['y'].append(scheduler.get_last_lr()[0])
-            if print_train:
-                print(f'step: {step_current}/{step_total} train loss: {round(loss.item(),2)}, LR: {scheduler.get_last_lr()[0]:.2e}')
     
     if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
-        plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
-    print(f"Finishing Training. Time taken: {(time.time()-start_time):.2f} seconds.")
-    print_line()
+        plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total, allow_print)
+    if allow_print:
+        print(f"Finishing Training. Time taken: {(time.time()-start_time):.2f} seconds.")
+        print_line()
     if plot:
         plot_train(plot_data)
     return model, val_loss
