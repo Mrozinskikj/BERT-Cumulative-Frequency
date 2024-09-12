@@ -137,7 +137,8 @@ def plot_train(plot_data: dict):
 
 def load_model(
     model: 'BERT',
-    model_path: str
+    model_path: str,
+    device : torch.device
     ) -> 'BERT':
     """
     Loads a model saved in a local directory.
@@ -148,8 +149,10 @@ def load_model(
         An instance of the model class, not containing the saved parameters.
     model_path : str
         The path of the saved model parameters, to be loaded into 'model'.
+    device : torch.device
+        The device on which to load the model (CPU or GPU).
     """
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=torch.device(device)))
     print(f"Model successfully loaded from {model_path}")
     print_line()
     return model

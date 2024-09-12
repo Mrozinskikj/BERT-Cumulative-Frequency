@@ -17,13 +17,13 @@ def train_model():
         'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         'seed': 0,
         'batch_size': 4,
-        'learning_rate': 1e-6,
+        'learning_rate': 1e-5,
         'epochs': 1,
         'warmup_ratio': 0.1,
         'eval_every': 250,
         'embed_dim': 768,
         'dropout': 0.1,
-        'attention_heads': 12,
+        'attention_heads': 2,
         'layers': 2
     }
     
@@ -59,7 +59,7 @@ def train_model():
     ).to(params['device']) # initialise model
 
     if should_load:
-        model = load_model(model, os.path.join(cur_dir, model_path))
+        model = load_model(model, os.path.join(cur_dir, model_path), params['device'])
     else:
         model = train_classifier(
             model,
