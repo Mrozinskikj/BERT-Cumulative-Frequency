@@ -134,6 +134,7 @@ def process_dataset(
     inputs: list, 
     tokeniser: Tokeniser,
     batch_size: int,
+    device: torch.device,
 ) -> dict:
     """
     Processes raw data into input tokens and labels, creating a dataset dictionary of batched tensors.
@@ -146,6 +147,8 @@ def process_dataset(
         An instance of the Tokeniser class used to encode the input.
     batch_size : int
         The number of items to include in each batch.
+    device : torch.device
+        The device on which to place the tensors (CPU or GPU).
 
     Returns
     -------
@@ -170,8 +173,8 @@ def process_dataset(
 
     # create dictionary of batched 3D input and label tensors
     dataset = {
-        'input_ids': batch_tensor(input_ids_list, batch_size),
-        'labels': batch_tensor(labels_list, batch_size)
+        'input_ids': batch_tensor(input_ids_list, batch_size).to(device),
+        'labels': batch_tensor(labels_list, batch_size).to(device)
     }
     print("Dataset created.", ", ".join([f"{key}: {tensor.size()}" for key, tensor in dataset.items()]))
     print_line()

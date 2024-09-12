@@ -14,6 +14,7 @@ def train_model():
     model_path = 'data/model.pth'
     
     params = {
+        'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         'seed': 0,
         'batch_size': 4,
         'learning_rate': 1e-6,
@@ -39,6 +40,7 @@ def train_model():
         inputs_train,
         tokeniser,
         params['batch_size'],
+        params['device']
     )
     
     inputs_test = read_inputs(os.path.join(cur_dir, "data", "test.txt"))
@@ -46,6 +48,7 @@ def train_model():
         inputs_test,
         tokeniser,
         params['batch_size'],
+        params['device']
     )
     
     model = BERT(
@@ -53,7 +56,7 @@ def train_model():
         params['dropout'],
         params['attention_heads'],
         params['layers'],
-    ) # initialise model
+    ).to(params['device']) # initialise model
 
     if should_load:
         model = load_model(model, os.path.join(cur_dir, model_path))
