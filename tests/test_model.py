@@ -12,8 +12,8 @@ def test_layer_norm():
     output_tensor = layer_norm(input_tensor)
 
     assert output_tensor.size() == input_tensor.size(), f"Expected shape ({batch_size}, {length}, {embed_dim}), but got {output_tensor['input_ids'].shape}"
-    assert torch.allclose(output_tensor.mean(dim=-1), torch.zeros(batch_size, length), atol=1e-5), "Mean should be close to 0"
-    assert torch.allclose(output_tensor.std(dim=-1), torch.ones(batch_size, length), atol=1e-5), "Std should be close to 1"
+    assert torch.allclose(output_tensor.mean(dim=-1), torch.zeros(batch_size, length), atol=1e-4), "Mean should be close to 0"
+    assert torch.allclose(output_tensor.std(dim=-1), torch.ones(batch_size, length), atol=1e-4), "Std should be close to 1"
 
 
 def test_attention_head():

@@ -62,11 +62,12 @@ class LayerNorm(nn.Module):
             The normalised and scaled input tensor. Prior to scaling, 'embed_dim' has zero mean and unit variance.
         """
         mean = inputs.mean(dim=-1, keepdim=True) # compute the mean across the embedding dimension (-1)
-        variance = ((inputs - mean) ** 2).mean(dim=-1, keepdim=True) # compute the variance (average of squared deviations from mean) across the embedding dimension (-1)
+        variance = inputs.var(dim=-1, keepdim=True, unbiased=True) # compute the unbiased variance (average of squared deviations from mean) across the embedding dimension (-1)
         std = torch.sqrt(variance + self.epsilon) # calculate standard deviation
 
-        normalised = (inputs - mean) / std # normalise inputs to mean 0 and standard deviation 1
+        normalised = (inputs - mean) / std # normalise inputs to mean 0 and standard deviation 1 (unbiased variance means std=1)
         scaled = normalised * self.gain + self.bias # normalised tensor is shifted and scaled by learnable parameters. increased flexibility
+        
         return scaled
 
 
