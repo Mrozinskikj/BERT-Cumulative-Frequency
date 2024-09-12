@@ -4,13 +4,14 @@ import random
 import torch
 
 from nlp_engineer_assignment import read_inputs, test_accuracy,\
-train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model
+train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model, tune_hyperparameters
 
 
 def train_model():
     
     should_load = True
     should_save = True
+    should_tune = True
     model_path = 'data/model.pth'
     
     params = {
@@ -51,6 +52,9 @@ def train_model():
         params['device']
     )
     
+    if should_tune:
+        tune_hyperparameters(dataset_train, dataset_test)
+    
     model = BERT(
         params['embed_dim'],
         params['dropout'],
@@ -61,7 +65,7 @@ def train_model():
     if should_load:
         model = load_model(model, os.path.join(cur_dir, model_path), params['device'])
     else:
-        model = train_classifier(
+        model, _ = train_classifier(
             model,
             dataset_train,
             dataset_test,

@@ -11,6 +11,7 @@ python = "~3.10"
 torch = "~1.12"
 uvicorn = "~0.23"
 matplotlib = "~3.6.3"
+scikit-optimize ='~0.10.2'
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "~2.0"

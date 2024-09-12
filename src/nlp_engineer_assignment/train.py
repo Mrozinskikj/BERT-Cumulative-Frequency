@@ -79,7 +79,9 @@ def evaluate(
     Returns
     -------
     dict
-        The updated plot data dictionary with the test loss added.
+        The updated plot data dictionary with the validation loss added.
+    float
+        The final validation loss.
     """
     model.eval()  # set model to evaluation mode
     batches = len(dataset_test['input_ids']) # number of batches in the test dataset
@@ -101,7 +103,7 @@ def evaluate(
     plot_data['test']['x'].append(step_current)
     plot_data['test']['y'].append(loss_average)
     print(f'step: {step_current}/{step_total} eval loss: {round(loss_average,2)}')
-    return plot_data
+    return plot_data, loss_average
 
 
 def train_classifier(
@@ -147,6 +149,8 @@ def train_classifier(
     -------
     BERT
         The trained BERT model.
+    float
+        The final validation loss.
     """
     plot_data = {key: {'x':[], 'y':[]} for key in ['train','test','lr']} # dict storing x,y plot data for training progress
     
@@ -168,7 +172,7 @@ def train_classifier(
             step_current = batch*(epoch+1)
             
             if batch%eval_every == 0: # perform evaluation on test split at set intervals
-                plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
+                plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
 
             logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits
             logits = logits.view(-1, logits.size(-1)) # flatten batch dimension: [batch_size * length, classes]
@@ -189,9 +193,9 @@ def train_classifier(
                 print(f'step: {step_current}/{step_total} train loss: {round(loss.item(),2)}, LR: {scheduler.get_last_lr()[0]:.2e}')
     
     if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
-        plot_data = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
+        plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total)
     print(f"Finishing Training. Time taken: {(time.time()-start_time):.2f} seconds.")
     print_line()
     if plot:
         plot_train(plot_data)
-    return model
+    return model, val_loss
