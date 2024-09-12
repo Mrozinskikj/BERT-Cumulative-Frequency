@@ -90,6 +90,7 @@ def test_accuracy(
         - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
             The batched tensor of labels corresponding to input IDs.
     """
+    print("Beginning evaluation...")
     predictions_list = [] # list to store every batch of predictions
     for batch in dataset_test['input_ids']:
         logits = model(batch) # derive the logits of one batch of inputs
