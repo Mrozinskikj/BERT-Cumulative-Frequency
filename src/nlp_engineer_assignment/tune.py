@@ -43,7 +43,7 @@ def objective(params_list, params, param_names, dataset_train, dataset_test, cou
         print(f"Invalid parameter combination: {e}")
         return float('inf')
     
-    print(f"{counter['iteration']}/{20} loss: {round(loss,2)}, Time taken: {(time.time()-start_time):.2f} seconds.")
+    print(f"{counter['iteration']}/{counter['total']} loss: {round(loss,2)}, Time taken: {(time.time()-start_time):.2f} seconds.")
     return loss
 
 

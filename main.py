@@ -30,13 +30,14 @@ def train_model():
     }
     
     should_tune = True
-    iterations = 10
+    iterations = 64
     sample_space = {
         'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
         'dropout': Real(0.0, 0.5),
-        'layers': Integer(1, 2),
-        'attention_heads': Categorical([1,2]),
-        'embedding_dim': Categorical([(i+1)*12 for i in range(3)]) # sample all factors of 12, divisible by attenion_heads
+        'layers': Integer(1,6),
+        'batch_size': Categorical([2**i for i in range(5)]), # sample powers of 2
+        'attention_heads': Categorical([1,2,3,4]), # sample factors of embedding_dim
+        'embedding_dim': Categorical([(i+1)*12 for i in range(96)]) # sample multiples of 12, divisible by attenion_heads
     }
     
     random.seed(params['seed'])
