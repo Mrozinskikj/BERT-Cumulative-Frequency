@@ -8,10 +8,10 @@ from nlp_engineer_assignment import test_accuracy,\
 train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data
 
 
-def train_model():
+def train_model(cur_dir):
     
-    should_load = True
-    should_save = True
+    should_load = False
+    should_save = False
     
     model_path = 'data/model.pth'
     
@@ -19,14 +19,14 @@ def train_model():
         'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         'seed': 0,
         'batch_size': 4,
-        'learning_rate': 1e-5,
+        'learning_rate': 8e-5,
         'epochs': 1,
         'warmup_ratio': 0.1,
         'eval_every': 250,
-        'embed_dim': 768,
-        'dropout': 0.1,
-        'attention_heads': 2,
-        'layers': 2
+        'embed_dim': 288,
+        'dropout': 0,
+        'attention_heads': 4,
+        'layers': 6
     }
     
     should_tune = True
@@ -46,8 +46,8 @@ def train_model():
     path_train = "data/train.txt"
     path_test = "data/test.txt"
     dataset_train, dataset_test = load_data(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), path_train),
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), path_test),
+        os.path.join(cur_dir, path_train),
+        os.path.join(cur_dir, path_test),
         params['batch_size'],
         params['device']
     )
@@ -92,7 +92,8 @@ def train_model():
 
 
 if __name__ == "__main__":
-    train_model()
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    train_model(cur_dir)
     uvicorn.run(
         "nlp_engineer_assignment.api:app",
         host="0.0.0.0",

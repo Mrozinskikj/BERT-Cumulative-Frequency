@@ -1,6 +1,4 @@
-import torch
 from skopt import gp_minimize
-from skopt.space import Real, Integer
 import matplotlib.pyplot as plt
 from skopt.plots import plot_convergence
 from functools import partial
