@@ -5,14 +5,14 @@ import torch
 from skopt.space import Real, Integer, Categorical
 
 from nlp_engineer_assignment import read_inputs, test_accuracy,\
-train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model, tune_hyperparameters
+train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model, tune_hyperparameters, load_data
 
 
 def train_model():
     
     should_load = True
     should_save = True
-    should_tune = True
+    
     model_path = 'data/model.pth'
     
     params = {
@@ -29,40 +29,29 @@ def train_model():
         'layers': 2
     }
     
-    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    should_tune = True
+    iterations = 10
+    sample_space = {
+        'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
+        'dropout': Real(0.0, 0.5),
+        'layers': Integer(1, 2),
+        'attention_heads': Categorical([1,2]),
+        'embedding_dim': Categorical([(i+1)*12 for i in range(3)]) # sample all factors of 12, divisible by attenion_heads
+    }
     
     random.seed(params['seed'])
     torch.manual_seed(params['seed'])
     
-
-    tokeniser = Tokeniser()
-
-    inputs_train = read_inputs(os.path.join(cur_dir, "data", "train.txt"))
-    dataset_train = process_dataset(
-        inputs_train,
-        tokeniser,
-        params['batch_size'],
-        params['device']
-    )
-    
-    inputs_test = read_inputs(os.path.join(cur_dir, "data", "test.txt"))
-    dataset_test = process_dataset(
-        inputs_test,
-        tokeniser,
+    path_train = "data/train.txt"
+    path_test = "data/test.txt"
+    dataset_train, dataset_test = load_data(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), path_train),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), path_test),
         params['batch_size'],
         params['device']
     )
     
     if should_tune:
-        sample_space = {
-            'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
-            'dropout': Real(0.0, 0.5),
-            'layers': Integer(1, 2),
-            'attention_heads': Categorical([1,2]),
-            'embedding_dim': Categorical([(i+1)*12 for i in range(3)]) # sample all factors of 12, divisible by attenion_heads
-        }
-        iterations = 10
-
         params = tune_hyperparameters(
             sample_space,
             params,

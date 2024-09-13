@@ -80,10 +80,13 @@ def tune_hyperparameters(
         random_state=seed
     )
     
+    
+    print(f"Finishing hyperparameter tuning. Total time taken: {(time.time()-start_time):.2f} seconds.")
+    print_line()
+    
     params_dict = dict(zip(param_names, result.x))
     params_dict_formatted = {k:f"{v:.2e}" if isinstance(v, float) else v for k,v in params_dict.items()} # round all floats in the dictionary
-    print_line()
-    print(f"Finishing hyperparameter tuning. Total time taken: {(time.time()-start_time):.2f} seconds.")
+    
     print(f"Optimal hyperparameters: {params_dict_formatted}\nLoss {round(result.fun,2)}")
     print_line()
 

@@ -1,6 +1,6 @@
 import torch
 import random
-from nlp_engineer_assignment import count_letters, print_line
+from nlp_engineer_assignment import count_letters, print_line, read_inputs
 
 
 class Tokeniser:
@@ -179,3 +179,54 @@ def process_dataset(
     print("Dataset created.", ", ".join([f"{key}: {tensor.size()}" for key, tensor in dataset.items()]))
     print_line()
     return dataset
+
+
+def load_data(
+    path_train: str,
+    path_test: str,
+    batch_size: int,
+    device: str,
+) -> tuple[dict, dict]:
+    """
+    Encapsulates loading tokeniser, reading from file, and processing dataset into one function.
+    
+    Parameters
+    ----------
+    path_train : str
+        Absolute path to train data txt file.
+    path_test : str
+        Absolute path to test data txt file.
+    batch_size : int
+        The number of items to include in each batch.
+    device : torch.device
+        The device on which to place the tensors (CPU or GPU).
+        
+    Returns
+    -------
+    tuple[dict, dict]
+    Matching dictionaries for train and test datasets.
+    - 'input_ids' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+        The batched tensor of tokenised input strings.
+    - 'labels' : torch.Tensor (shape [num_batches, batch_size, tensor_length])
+        The batched tensor of labels corresponding to input IDs.
+    """
+    
+    tokeniser = Tokeniser()
+    
+    inputs_train = read_inputs(path_train)
+    inputs_test = read_inputs(path_test)
+    
+    dataset_train = process_dataset(
+        inputs_train,
+        tokeniser,
+        batch_size,
+        device
+    )
+    dataset_test = process_dataset(
+        inputs_test,
+        tokeniser,
+        batch_size,
+        device
+    )
+    
+    return dataset_train, dataset_test
