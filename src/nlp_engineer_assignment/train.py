@@ -148,6 +148,7 @@ def train_classifier(
         The step interval between evaluations on test dataset during training. If eval_every>=steps, only eval at the end.
     eval_first : bool, optional
         Whether to evaluate before the first training step. Defaults to False.
+    
     allow_print : bool, optional
         Whether to print the training state at every validation step. Defaults to True.
     plot : bool, optional
