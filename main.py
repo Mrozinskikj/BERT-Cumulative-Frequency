@@ -10,7 +10,7 @@ train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data
 
 def train_model(cur_dir):
     
-    should_load = False
+    should_load = True
     should_save = False
     
     model_path = 'data/model.pth'

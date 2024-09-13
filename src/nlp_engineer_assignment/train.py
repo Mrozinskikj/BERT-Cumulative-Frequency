@@ -179,7 +179,7 @@ def train_classifier(
 
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
-            step_current = (batch+1)*(epoch+1)
+            step_current = batch*(epoch+1)
             
             if batch%eval_every == 0 and not (not eval_first and step_current==0): # perform evaluation on test split at set intervals
                 plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total, allow_print)
@@ -201,7 +201,7 @@ def train_classifier(
             plot_data['lr']['y'].append(scheduler.get_last_lr()[0])
     
     if batch%eval_every != 0: # perform final evaluation (as long as not already performed on this step)
-        plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total, allow_print)
+        plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_total, step_total, allow_print)
     if allow_print:
         print(f"Finishing Training. Time taken: {(time.time()-start_time):.2f} seconds.")
         print_line()

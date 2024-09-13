@@ -76,7 +76,7 @@ def objective(
             warmup_ratio=params['warmup_ratio'],
             eval_every=1e6, # do not perform eval
             eval_first=False,
-            allow_print=True,
+            allow_print=False,
             plot=False
         ) # get validation loss after training
     except ValueError as e: # catch invalid parameter combination (e.g. attention_heads not a factor of embed_dim) and return a high objective value
