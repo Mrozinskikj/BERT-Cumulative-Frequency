@@ -70,6 +70,7 @@ def train_model():
             dataset_test,
             params['seed'],
             iterations,
+            plot=True,
         )
     
     model = BERT(

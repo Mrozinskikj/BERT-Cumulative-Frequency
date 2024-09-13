@@ -1,7 +1,10 @@
 import torch
 from skopt import gp_minimize
 from skopt.space import Real, Integer
+import matplotlib.pyplot as plt
+from skopt.plots import plot_convergence
 from functools import partial
+import time
 
 from nlp_engineer_assignment import BERT, train_classifier, print_line
 
@@ -13,6 +16,7 @@ def objective(params_list, params, param_names, dataset_train, dataset_test, cou
 
     counter['iteration'] += 1
     print(f"{counter['iteration']}/{20}: {params_dict_formatted}")
+    start_time = time.time()
 
     
     try:
@@ -38,7 +42,7 @@ def objective(params_list, params, param_names, dataset_train, dataset_test, cou
         print(f"Invalid parameter combination: {e}")
         return float('inf')
     
-    print(f"{counter['iteration']}/{20} loss: {loss}")
+    print(f"{counter['iteration']}/{20} loss: {round(loss,2)}, Time taken: {(time.time()-start_time):.2f} seconds.")
     return loss
 
 
@@ -49,6 +53,7 @@ def tune_hyperparameters(
         dataset_test,
         seed,
         iterations,
+        plot
     ):
     counter = {'iteration': 0, 'total': iterations} # must store iterations counter as mutable data type
 
@@ -64,6 +69,7 @@ def tune_hyperparameters(
         counter=counter
     )
     
+    start_time = time.time()
     print("Beginning hyperparameter tuning.")
     print_line()
     
@@ -77,8 +83,13 @@ def tune_hyperparameters(
     params_dict = dict(zip(param_names, result.x))
     params_dict_formatted = {k:f"{v:.2e}" if isinstance(v, float) else v for k,v in params_dict.items()} # round all floats in the dictionary
     print_line()
+    print(f"Finishing hyperparameter tuning. Total time taken: {(time.time()-start_time):.2f} seconds.")
     print(f"Optimal hyperparameters: {params_dict_formatted}\nLoss {round(result.fun,2)}")
     print_line()
+
+    if plot:
+        plot_convergence(result)
+        plt.show()
 
     params.update(params_dict) # update params with optimals and return
     return params
