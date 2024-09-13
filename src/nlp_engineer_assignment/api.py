@@ -1,9 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Body
 from starlette.responses import RedirectResponse
 
 
 app = FastAPI(
-    title="NLP Engineer Assignment",
+    title="BERT Cumulative Frequency",
     version="1.0.0"
 )
 
@@ -15,6 +15,14 @@ async def index():
     """
     return RedirectResponse(url="/docs")
 
+@app.post("/predict")
+async def predict(data: dict = Body(...)):
+    text = data.get('text')
+    if text is None:
+        return {"error": "No text provided"}
+    
+    prediction = text
+    return {"prediction": prediction*2}
 
 # TODO: Add a route to the API that accepts a text input and uses the trained
 # model to predict the number of occurrences of each letter in the text up to

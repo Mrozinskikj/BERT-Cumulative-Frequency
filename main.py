@@ -29,7 +29,7 @@ def train_model(cur_dir):
         'layers': 6
     }
     
-    should_tune = True
+    should_tune = False
     iterations = 64
     sample_space = {
         'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
@@ -88,7 +88,7 @@ def train_model(cur_dir):
             save_model(model, os.path.join(cur_dir, model_path))
             
 
-    test_accuracy(model, dataset_test)
+    #test_accuracy(model, dataset_test)
 
 
 if __name__ == "__main__":

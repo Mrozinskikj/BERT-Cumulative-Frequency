@@ -100,7 +100,7 @@ def test_accuracy(
     predictions = torch.stack(predictions_list).view(1000, 20) # convert list to tensor and flatten batch dimension
     labels = dataset_test['labels'].view(1000, 20) # flatten batch dimension of labels
     
-    print(f"Test Accuracy: {100.0 * score(predictions, labels):.2f}%") # calculate score
+    print(f"Test Accuracy: {(100.0 * score(predictions, labels)):.1f}%") # calculate score
     print_line()
     
 
