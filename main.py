@@ -54,18 +54,22 @@ def train_model():
     )
     
     if should_tune:
-        tune_hyperparameters(
-            {
-                'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
-                'dropout': Real(0.0, 0.5),
-                'layers': Integer(1, 2),
-                'attention_heads': Categorical([1,2]),
-                'embedding_dim': Categorical([(i+1)*12 for i in range(3)]) # sample all factors of 12, divisible by attenion_heads
-            },
+        sample_space = {
+            'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
+            'dropout': Real(0.0, 0.5),
+            'layers': Integer(1, 2),
+            'attention_heads': Categorical([1,2]),
+            'embedding_dim': Categorical([(i+1)*12 for i in range(3)]) # sample all factors of 12, divisible by attenion_heads
+        }
+        iterations = 10
+
+        params = tune_hyperparameters(
+            sample_space,
             params,
             dataset_train,
             dataset_test,
-            iterations=20,
+            params['seed'],
+            iterations,
         )
     
     model = BERT(

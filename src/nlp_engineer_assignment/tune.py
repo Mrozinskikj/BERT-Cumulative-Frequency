@@ -47,7 +47,8 @@ def tune_hyperparameters(
         params,
         dataset_train,
         dataset_test,
-        iterations
+        seed,
+        iterations,
     ):
     counter = {'iteration': 0, 'total': iterations} # must store iterations counter as mutable data type
 
@@ -70,6 +71,14 @@ def tune_hyperparameters(
         func=objective_data,
         dimensions=dimensions,
         n_calls=iterations,
-        random_state=0
+        random_state=seed
     )
-    print(result)
+    
+    params_dict = dict(zip(param_names, result.x))
+    params_dict_formatted = {k:f"{v:.2e}" if isinstance(v, float) else v for k,v in params_dict.items()} # round all floats in the dictionary
+    print_line()
+    print(f"Optimal hyperparameters: {params_dict_formatted}\nLoss {round(result.fun,2)}")
+    print_line()
+
+    params.update(params_dict) # update params with optimals and return
+    return params
