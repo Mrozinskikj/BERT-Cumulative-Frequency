@@ -118,6 +118,7 @@ def train_classifier(
     epochs: int,
     warmup_ratio: float,
     eval_every: int,
+    eval_first: bool = True,
     allow_print: bool = True,
     plot: bool = True
 ) -> BERT:
@@ -143,7 +144,10 @@ def train_classifier(
         The number of epochs for training. Each epoch corresponds to one full iteration through training data.
     warmup_ratio : float
         The ratio of total training steps that learning rate warmup occurs for. 0 = no warmup, 1 = all warmup.
-
+    eval_every : int
+        The step interval between evaluations on test dataset during training. If eval_every>=steps, only eval at the end.
+    eval_first : bool, optional
+        Whether to evaluate before the first training step. Defaults to False.
     allow_print : bool, optional
         Whether to print the training state at every validation step. Defaults to True.
     plot : bool, optional
@@ -174,9 +178,9 @@ def train_classifier(
 
     for epoch in range(epochs): # iterate through epochs
         for batch in range(batches): # iterate through batches in epoch
-            step_current = batch*(epoch+1)
+            step_current = (batch+1)*(epoch+1)
             
-            if batch%eval_every == 0: # perform evaluation on test split at set intervals
+            if batch%eval_every == 0 and not (not eval_first and step_current==0): # perform evaluation on test split at set intervals
                 plot_data, val_loss = evaluate(model, dataset_test, loss_fn, plot_data, step_current, step_total, allow_print)
 
             logits = model(dataset_train['input_ids'][batch]) # forward pass to compute logits

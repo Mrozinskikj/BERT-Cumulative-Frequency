@@ -4,8 +4,8 @@ import random
 import torch
 from skopt.space import Real, Integer, Categorical
 
-from nlp_engineer_assignment import read_inputs, test_accuracy,\
-train_classifier, Tokeniser, process_dataset, BERT, load_model, save_model, tune_hyperparameters, load_data
+from nlp_engineer_assignment import test_accuracy,\
+train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data
 
 
 def train_model():

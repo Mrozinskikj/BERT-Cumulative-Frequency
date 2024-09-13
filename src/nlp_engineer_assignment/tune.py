@@ -25,7 +25,7 @@ def objective(params_list, params, param_names, dataset_train, dataset_test, cou
             dropout=params['dropout'],
             attention_heads=params['attention_heads'],
             layers=params['layers']
-        )
+        ).to(params['device'])
         
         _, loss = train_classifier(
             model=model,
@@ -34,8 +34,9 @@ def objective(params_list, params, param_names, dataset_train, dataset_test, cou
             learning_rate=params['learning_rate'],
             epochs=params['epochs'],
             warmup_ratio=params['warmup_ratio'],
-            eval_every=params['eval_every'],
-            allow_print=False,
+            eval_every=1e6, # do not perform eval
+            eval_first=False,
+            allow_print=True,
             plot=False
         )
     except ValueError as e:
