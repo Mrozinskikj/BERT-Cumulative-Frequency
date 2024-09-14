@@ -5,11 +5,11 @@ import torch
 from skopt.space import Real, Integer, Categorical
 
 from nlp_engineer_assignment import test_accuracy,\
-train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data
+train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data, create_app
 
 
 def train_model(cur_dir):
-    
+
     should_load = True
     should_save = False
     
@@ -86,16 +86,17 @@ def train_model(cur_dir):
         )
         if should_save:
             save_model(model, os.path.join(cur_dir, model_path))
-            
 
     #test_accuracy(model, dataset_test)
+    return model  
 
 
 if __name__ == "__main__":
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-    train_model(cur_dir)
+    model = train_model(cur_dir)
+    app = create_app(model)
     uvicorn.run(
-        "nlp_engineer_assignment.api:app",
+        app,
         host="0.0.0.0",
         port=8000,
         log_level="info",
