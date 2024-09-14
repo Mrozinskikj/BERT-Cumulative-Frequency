@@ -73,6 +73,30 @@ def score(
     return torch.sum(labels == predictions).float() / labels.numel()
 
 
+def predict(
+    input_ids: torch.Tensor,
+    model: 'BERT'
+) -> torch.Tensor:
+    """
+    Compute the predictions of a batch of examples by feeding the input through the model and finding the max logits.
+
+    Parameters
+    ----------
+    model : BERT
+        The BERT model for computing predictions with.
+    input_ids : torch.Tensor (shape [batch_size, length])
+        The tensor containing token indices for the input sequences of a given batch.
+    
+    Returns
+    -------
+    torch.Tensor  (shape [batch_size, length])
+        The class labels corresponding to each input.
+    """
+    logits = model(input_ids) # derive the logits of a batch of inputs
+    prediction = torch.argmax(logits, dim=-1) # prediction is the highest value logit for each item in sequence
+    return prediction
+
+
 def test_accuracy(
     model: 'BERT',
     dataset_test: torch.Tensor
@@ -93,9 +117,7 @@ def test_accuracy(
     print("Beginning evaluation...")
     predictions_list = [] # list to store every batch of predictions
     for batch in dataset_test['input_ids']:
-        logits = model(batch) # derive the logits of one batch of inputs
-        prediction = torch.argmax(logits, dim=-1) # prediction is the highest value logit for each item in sequence
-        predictions_list.append(prediction)
+        predictions_list.append(predict(batch, model))
     
     predictions = torch.stack(predictions_list).view(1000, 20) # convert list to tensor and flatten batch dimension
     labels = dataset_test['labels'].view(1000, 20) # flatten batch dimension of labels
@@ -139,7 +161,7 @@ def load_model(
     model: 'BERT',
     model_path: str,
     device : torch.device
-    ) -> 'BERT':
+) -> 'BERT':
     """
     Loads a model saved in a local directory.
 
@@ -161,7 +183,7 @@ def load_model(
 def save_model(
     model: 'BERT',
     model_path: str
-    ) -> 'BERT':
+) -> 'BERT':
     """
     Saves a trained model to a local directory.
 

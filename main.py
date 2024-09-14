@@ -87,7 +87,7 @@ def train_model(cur_dir):
         if should_save:
             save_model(model, os.path.join(cur_dir, model_path))
 
-    #test_accuracy(model, dataset_test)
+    test_accuracy(model, dataset_test)
     return model  
 
 
