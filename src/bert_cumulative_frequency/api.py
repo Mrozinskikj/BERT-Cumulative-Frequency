@@ -38,9 +38,8 @@ def create_app(model):
         """
         return RedirectResponse(url="/docs")
 
-    @app.get("/prediction")
     @app.post("/prediction")
-    async def serve(request: Request, request_body: PredictionRequestBody | None = None, text: str = "") -> dict:
+    async def serve(request_body: PredictionRequestBody) -> dict:
         """
         Endpoint to process input text and return model prediction.
 
@@ -59,7 +58,7 @@ def create_app(model):
         HTTPException
             If there is a ValueError when unpermitted string is processed by the tokeniser.
         """
-        input_text = request_body.text if request.method == 'POST' and request_body else text
+        input_text = request_body.text
         try:
             input_ids = tokeniser.encode(input_text) # encode the input string into tokens
         except ValueError as e:
