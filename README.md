@@ -57,7 +57,6 @@ The FastAPI application provides a RESTful endpoint for model inference. The API
 {
   "prediction": "00010000012202020011"
 }
-
 ```
 
 ## Configuration
@@ -70,6 +69,8 @@ The ``config.yaml`` file allows for the customisation of the program execution. 
 ## CUDA Support
 
 Although the program is written to support CUDA, additional steps are required to enable it during execution due to the limitation of the Poetry dependency management system. By default, a CPU-only version of PyTorch is specified in ``pyproject.toml``. To enable CUDA, replace the default PyTorch dependency with the path to your local CUDA-enabled PyTorch.
+
+Training the model on CPU is sufficient, only taking a few minutes, but hyperparameter tuning may benefit from CUDA.
 
 ## Testing
 
