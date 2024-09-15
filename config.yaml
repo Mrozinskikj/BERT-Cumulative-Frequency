@@ -1,0 +1,48 @@
+model:
+  should_load: true
+  should_save: false
+  model_path: 'data/model.pth'
+
+training:
+  embed_dim: 288
+  layers: 6
+  attention_heads: 4
+  dropout: 0
+  
+  batch_size: 4
+  learning_rate: 8e-5
+  epochs: 1
+  warmup_ratio: 0.1
+  eval_every: 250
+
+  seed: 0
+
+  plot: true
+
+tuning:
+  should_tune: false
+
+  iterations: 64
+  sample_space:
+    learning_rate:
+      type: Real
+      low: 1e-6
+      high: 1e-2
+      prior: 'log-uniform'
+    dropout:
+      type: Real
+      low: 0.0
+      high: 0.5
+    layers:
+      type: Integer
+      low: 1
+      high: 6
+    batch_size:
+      type: Categorical
+      categories: [1, 2, 4, 8, 16]
+    attention_heads:
+      type: Categorical
+      categories: [1, 2, 3, 4]
+    embed_dim:
+      type: Categorical
+      categories: [12, 24, 36]

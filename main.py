@@ -4,12 +4,21 @@ import random
 import torch
 from skopt.space import Real, Integer, Categorical
 
-from nlp_engineer_assignment import test_accuracy,\
-train_classifier, BERT, load_model, save_model, tune_hyperparameters, load_data, create_app
+from nlp_engineer_assignment import (
+    test_accuracy,
+    train_classifier,
+    BERT,
+    load_model,
+    save_model,
+    tune_hyperparameters,
+    load_data,
+    create_app
+)
 
 
 def train_model(cur_dir):
 
+    print(torch.cuda.is_available())
     should_load = True
     should_save = False
     
@@ -93,7 +102,9 @@ def train_model(cur_dir):
 
 if __name__ == "__main__":
     cur_dir = os.path.dirname(os.path.abspath(__file__))
+
     model = train_model(cur_dir)
+
     app = create_app(model)
     uvicorn.run(
         app,
