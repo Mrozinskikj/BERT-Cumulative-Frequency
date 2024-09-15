@@ -1,5 +1,5 @@
 from .train import train_classifier
-from .model_low import BERT
+from .model import BERT
 from .utils import count_letters, print_line, read_inputs, score, test_accuracy, plot_train, load_model, save_model, predict
 from .dataset import Tokeniser, process_dataset, load_data
 from .tune import tune_hyperparameters

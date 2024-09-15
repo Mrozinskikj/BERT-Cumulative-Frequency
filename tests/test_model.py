@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from nlp_engineer_assignment.model_low import BERT, BERTEmbedding, LayerNorm, AttentionHead, MultiHeadAttention, TransformerLayer
+from nlp_engineer_assignment.model import BERT, BERTEmbedding, LayerNorm, AttentionHead, MultiHeadAttention, TransformerLayer
 
 
 def test_layer_norm():
