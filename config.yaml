@@ -1,5 +1,5 @@
 model:
-  load: true
+  load: false
   save: false
   path: 'data/model.pth'
 
@@ -26,14 +26,14 @@ train:
   seed: 0
 
 tune:
-  tune: false
+  tune: true
 
   iterations: 64
   sample_space:
     learning_rate:
       type: Real
-      low: 1e-6
-      high: 1e-2
+      low: 1.0e-6
+      high: 1.0e-2
       prior: 'log-uniform'
     dropout:
       type: Real

@@ -2,7 +2,6 @@ import os
 import uvicorn
 import random
 import torch
-from skopt.space import Real, Integer, Categorical
 import yaml
 
 from nlp_engineer_assignment import (
@@ -32,16 +31,7 @@ def train_model(config):
     torch.manual_seed(params['seed'])
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    sample_space = {
-        'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
-        'dropout': Real(0.0, 0.5),
-        'layers': Integer(1,6),
-        'batch_size': Categorical([2**i for i in range(5)]), # sample powers of 2
-        'attention_heads': Categorical([1,2,3,4]), # sample factors of embedding_dim
-        'embedding_dim': Categorical([(i+1)*12 for i in range(96)]) # sample multiples of 12, divisible by attenion_heads
-    }
-    
+
     dataset_train, dataset_test = load_data(
         os.path.join(cur_dir, config['data']['train_path']),
         os.path.join(cur_dir, config['data']['test_path']),
@@ -51,12 +41,12 @@ def train_model(config):
     
     if config['tune']['tune']:
         params = tune_hyperparameters(
-            sample_space,
+            config['tune']['sample_space'],
             params,
             dataset_train,
             dataset_test,
-            params['seed'],
             config['tune']['iterations'],
+            device,
             config['plot']['tune'],
         )
     
@@ -84,7 +74,7 @@ def train_model(config):
         if config['model']['save']:
             save_model(model, os.path.join(cur_dir, config['model']['path']))
 
-    #test_accuracy(model, dataset_test)
+    test_accuracy(model, dataset_test)
     return model  
 
 
