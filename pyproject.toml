@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "nlp-engineer-assignment"
-description = ""
+name = "bert_cumulative_frequency"
+description = "Implements and serves a BERT-based language model for classifying cumulative character frequencies."
 version = "1.0.0"
-authors = ["Your Name <name@domain.com>"]
+authors = ["Krzysztof Mrozinski <mrozinskikj@gmail.com>"]
 
 [tool.poetry.dependencies]
 fastapi = "~0.104"

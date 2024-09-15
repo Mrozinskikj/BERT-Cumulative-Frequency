@@ -1,7 +1,7 @@
 import torch
 
-from nlp_engineer_assignment.utils import score, print_line
-from nlp_engineer_assignment import BERT
+from bert_cumulative_frequency.utils import score, print_line
+from bert_cumulative_frequency import BERT
 
 
 def load_model(

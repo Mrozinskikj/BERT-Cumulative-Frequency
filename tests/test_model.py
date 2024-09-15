@@ -1,5 +1,5 @@
 import torch
-from nlp_engineer_assignment.model import BERT, BERTEmbedding, LayerNorm, AttentionHead, MultiHeadAttention, TransformerLayer
+from bert_cumulative_frequency.model import BERT, BERTEmbedding, LayerNorm, AttentionHead, MultiHeadAttention, TransformerLayer
 
 
 def test_layer_norm():

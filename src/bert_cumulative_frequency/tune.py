@@ -6,7 +6,7 @@ from skopt.space import Real, Integer, Categorical
 import time
 import math
 
-from nlp_engineer_assignment import BERT, train_classifier, print_line
+from bert_cumulative_frequency import BERT, train_classifier, print_line
 
 
 def build_sample_space(sample_space_config) -> tuple[list,list]:

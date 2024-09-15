@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from nlp_engineer_assignment import count_letters, score
+from bert_cumulative_frequency import count_letters, score
 
 
 def test_count_letters():

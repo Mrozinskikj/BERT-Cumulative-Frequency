@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from nlp_engineer_assignment import Tokeniser, process_dataset
+from bert_cumulative_frequency import Tokeniser, process_dataset
 
 
 tokeniser = Tokeniser(length=20)

@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from nlp_engineer_assignment.utils import print_line, plot_train
-from nlp_engineer_assignment.model import BERT
+from bert_cumulative_frequency.utils import print_line, plot_train
+from bert_cumulative_frequency.model import BERT
 import time
 
 

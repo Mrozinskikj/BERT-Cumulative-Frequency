@@ -1,6 +1,6 @@
 import torch
 import random
-from nlp_engineer_assignment import count_letters, print_line, read_inputs
+from bert_cumulative_frequency import count_letters, print_line, read_inputs
 
 
 class Tokeniser:

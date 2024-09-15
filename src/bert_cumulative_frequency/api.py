@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
-from nlp_engineer_assignment import Tokeniser, predict
+from bert_cumulative_frequency import Tokeniser, predict
 
 class PredictionRequestBody(BaseModel):
     """

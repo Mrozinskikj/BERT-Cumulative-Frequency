@@ -4,7 +4,7 @@ import random
 import torch
 import yaml
 
-from nlp_engineer_assignment import (
+from bert_cumulative_frequency import (
     test_accuracy,
     train_classifier,
     BERT,
@@ -100,7 +100,7 @@ def prepare_model(config) -> BERT:
         if config['model']['save']:
             save_model(model, os.path.join(cur_dir, config['model']['path'])) # save the model to local file if specified by config
 
-    #test_accuracy(model, dataset_test) # evaluate the model to get final percentage accuracy
+    test_accuracy(model, dataset_test) # evaluate the model to get final percentage accuracy
     return model  
 
 
