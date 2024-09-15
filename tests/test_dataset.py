@@ -48,7 +48,7 @@ def test_process_dataset_correct_batches():
         "s can also extend in",
         "erages between nine ",
     ]
-    dataset = process_dataset(inputs, tokeniser, batch_size=2)
+    dataset = process_dataset(inputs, tokeniser, batch_size=2, device='cpu')
     assert dataset['input_ids'].shape == (2, 2, 20), f"Expected shape (2, 2, 20), but got {dataset['input_ids'].shape}"
     assert dataset['labels'].shape == (2, 2, 20), f"Expected shape (2, 2, 20), but got {dataset['labels'].shape}"
 
@@ -60,7 +60,7 @@ def test_process_dataset_trim_items():
         "ed by rank and file ",
         "s can also extend in",
     ]
-    dataset = process_dataset(inputs, tokeniser, batch_size=2)
+    dataset = process_dataset(inputs, tokeniser, batch_size=2, device='cpu')
     assert dataset['input_ids'].shape == (1, 2, 20), f"Expected shape (1, 2, 20), but got {dataset['input_ids'].shape}"
     assert dataset['labels'].shape == (1, 2, 20), f"Expected shape (1, 2, 20), but got {dataset['labels'].shape}"
 
@@ -71,7 +71,7 @@ def test_process_dataset_empty():
         "heir average albedo ",
     ]
     try:
-        process_dataset(inputs, tokeniser, batch_size=2)
+        process_dataset(inputs, tokeniser, batch_size=2, device='cpu')
         assert False, "Expected ValueError, but no error was raised."
     except Exception as e:
         assert isinstance(e, ValueError), f"Expected ValueError, but got {type(e).__name__}."

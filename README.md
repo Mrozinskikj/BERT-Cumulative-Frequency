@@ -76,3 +76,4 @@ Training the model on CPU is sufficient, only taking a few minutes, but hyperpar
 ## Testing
 
 Unit tests are provided in the ``tests`` directory to ensure the correct functionality of various project components.
+These tests may be executed by running `pytest` after `poetry shell` has already been run.
