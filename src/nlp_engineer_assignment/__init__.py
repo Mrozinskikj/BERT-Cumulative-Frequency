@@ -1,6 +1,7 @@
 from .train import train_classifier
 from .model import BERT
-from .utils import count_letters, print_line, read_inputs, score, test_accuracy, plot_train, load_model, save_model, predict
+from .model_utils import load_model, save_model, predict, test_accuracy
+from .utils import count_letters, print_line, read_inputs, score, plot_train
 from .dataset import Tokeniser, process_dataset, load_data
 from .tune import tune_hyperparameters
 from .api import create_app
