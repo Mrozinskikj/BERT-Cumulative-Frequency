@@ -20,4 +20,3 @@ docs/
 
 # Poetry files
 poetry.lock
-*.pth
