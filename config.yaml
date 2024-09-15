@@ -1,26 +1,32 @@
 model:
-  should_load: true
-  should_save: false
-  model_path: 'data/model.pth'
+  load: true
+  save: false
+  path: 'data/model.pth'
 
-training:
+data:
+  train_path: "data/train.txt"
+  test_path: "data/test.txt"
+
+plot:
+  train: true
+  tune: true
+
+train:
   embed_dim: 288
   layers: 6
   attention_heads: 4
   dropout: 0
   
   batch_size: 4
-  learning_rate: 8e-5
+  learning_rate: 8.0e-5
   epochs: 1
   warmup_ratio: 0.1
   eval_every: 250
 
   seed: 0
 
-  plot: true
-
-tuning:
-  should_tune: false
+tune:
+  tune: false
 
   iterations: 64
   sample_space:

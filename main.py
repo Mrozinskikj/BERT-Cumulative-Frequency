@@ -3,6 +3,7 @@ import uvicorn
 import random
 import torch
 from skopt.space import Real, Integer, Categorical
+import yaml
 
 from nlp_engineer_assignment import (
     test_accuracy,
@@ -16,30 +17,22 @@ from nlp_engineer_assignment import (
 )
 
 
-def train_model(cur_dir):
+def get_config(config_path: str) -> dict:
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    return config
 
-    print(torch.cuda.is_available())
-    should_load = True
-    should_save = False
+
+def train_model(config):
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
     
-    model_path = 'data/model.pth'
+    params = config['train']
     
-    params = {
-        'device': torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        'seed': 0,
-        'batch_size': 4,
-        'learning_rate': 8e-5,
-        'epochs': 1,
-        'warmup_ratio': 0.1,
-        'eval_every': 250,
-        'embed_dim': 288,
-        'dropout': 0,
-        'attention_heads': 4,
-        'layers': 6
-    }
+    random.seed(params['seed'])
+    torch.manual_seed(params['seed'])
     
-    should_tune = False
-    iterations = 64
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     sample_space = {
         'learning_rate': Real(1e-6, 1e-2, prior='log-uniform'),
         'dropout': Real(0.0, 0.5),
@@ -49,27 +42,22 @@ def train_model(cur_dir):
         'embedding_dim': Categorical([(i+1)*12 for i in range(96)]) # sample multiples of 12, divisible by attenion_heads
     }
     
-    random.seed(params['seed'])
-    torch.manual_seed(params['seed'])
-    
-    path_train = "data/train.txt"
-    path_test = "data/test.txt"
     dataset_train, dataset_test = load_data(
-        os.path.join(cur_dir, path_train),
-        os.path.join(cur_dir, path_test),
+        os.path.join(cur_dir, config['data']['train_path']),
+        os.path.join(cur_dir, config['data']['test_path']),
         params['batch_size'],
-        params['device']
+        device
     )
     
-    if should_tune:
+    if config['tune']['tune']:
         params = tune_hyperparameters(
             sample_space,
             params,
             dataset_train,
             dataset_test,
             params['seed'],
-            iterations,
-            plot=True,
+            config['tune']['iterations'],
+            config['plot']['tune'],
         )
     
     model = BERT(
@@ -77,10 +65,10 @@ def train_model(cur_dir):
         params['dropout'],
         params['attention_heads'],
         params['layers'],
-    ).to(params['device']) # initialise model
+    ).to(device) # initialise model
 
-    if should_load:
-        model = load_model(model, os.path.join(cur_dir, model_path), params['device'])
+    if config['model']['load']:
+        model = load_model(model, os.path.join(cur_dir, config['model']['path']), device)
     else:
         model, _ = train_classifier(
             model,
@@ -91,19 +79,19 @@ def train_model(cur_dir):
             params['warmup_ratio'],
             params['eval_every'],
             allow_print=True,
-            plot=True,
+            plot=config['plot']['train'],
         )
-        if should_save:
-            save_model(model, os.path.join(cur_dir, model_path))
+        if config['model']['save']:
+            save_model(model, os.path.join(cur_dir, config['model']['path']))
 
-    test_accuracy(model, dataset_test)
+    #test_accuracy(model, dataset_test)
     return model  
 
 
 if __name__ == "__main__":
-    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    config = get_config("config.yaml")
 
-    model = train_model(cur_dir)
+    model = train_model(config)
 
     app = create_app(model)
     uvicorn.run(

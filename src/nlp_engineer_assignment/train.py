@@ -167,7 +167,7 @@ def train_classifier(
 
     batches = len(dataset_train['input_ids']) # number of batches in the training dataset
     step_total = batches*epochs
-
+    
     optimiser = torch.optim.AdamW(model.parameters(), lr=learning_rate) # initialise AdamW optimiser
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimiser, lr_lambda=lambda step: lr_scheduler(warmup_ratio, step, step_total)) # create custom learning rate scheduler
     loss_fn = nn.CrossEntropyLoss() # initialise cross-entropy loss function for classification

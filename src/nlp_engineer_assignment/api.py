@@ -33,14 +33,8 @@ def create_app(model):
         """
         return RedirectResponse(url="/docs")
 
-    class TextInput(BaseModel):
-        """
-        Schema for the input text received by the API.
-        """
-        text: str
-
-    @app.post("/")
-    async def serve(input: TextInput) -> dict:
+    @app.get("/prediction")
+    async def serve(input_text: str) -> dict:
         """
         Endpoint to process input text and return model prediction.
 
@@ -59,7 +53,6 @@ def create_app(model):
         HTTPException
             If there is a ValueError when unpermitted string is processed by the tokeniser.
         """
-        input_text = input.text
         try:
             input_ids = tokeniser.encode(input_text) # encode the input string into tokens
         except ValueError as e:
