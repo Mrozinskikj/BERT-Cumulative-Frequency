@@ -1,5 +1,5 @@
 model:
-  load: false # whether to load the model from the specified local path. if true, skips tuning and training.
+  load: true # whether to load the model from the specified local path. if true, skips tuning and training.
   save: false # whether to save the model to the specified local path after training.
   path: 'data/model.pth' # the path to save or load the model
 
@@ -26,7 +26,7 @@ train:
   seed: 0 # random seed for reproducibility
 
 tune:
-  tune: true # whether to perform hyperparameter tuning before training and serving
+  tune: false # whether to perform hyperparameter tuning before training and serving
 
   iterations: 64 # number of iterations for hyperparameter tuning
   sample_space: # the search ranges for each specified hyperparameter to be tuned

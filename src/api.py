@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
 from nlp_engineer_assignment import Tokeniser, predict
 
+class PredictionRequestBody(BaseModel):
+    """
+    Schema for the input text received by the API.
+    """
+    text: str
 
 def create_app(model):
     """
@@ -34,7 +39,8 @@ def create_app(model):
         return RedirectResponse(url="/docs")
 
     @app.get("/prediction")
-    async def serve(input_text: str) -> dict:
+    @app.post("/prediction")
+    async def serve(request: Request, request_body: PredictionRequestBody | None = None, text: str = "") -> dict:
         """
         Endpoint to process input text and return model prediction.
 
@@ -53,6 +59,7 @@ def create_app(model):
         HTTPException
             If there is a ValueError when unpermitted string is processed by the tokeniser.
         """
+        input_text = request_body.text if request.method == 'POST' and request_body else text
         try:
             input_ids = tokeniser.encode(input_text) # encode the input string into tokens
         except ValueError as e:
