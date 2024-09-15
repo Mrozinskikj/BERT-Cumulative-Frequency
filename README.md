@@ -7,7 +7,7 @@ This project implements and serves a BERT-based language model for classifying c
 Input string: yaraku is a japanese
 Labels:       00010000012202020011
 ```
-The model is implemented from scratching exclusively using basic PyTorch units such as ``nn.Linear`` and ``nn.Embedding``. The transformer encoder architecture includes custom implementations of the embedding layer, a multi-headed attention mechanism, and layer normalisation.
+The model is implemented from scratch exclusively using basic PyTorch units such as ``nn.Linear`` and ``nn.Embedding``. The transformer encoder architecture includes custom implementations of the embedding layer, a multi-headed attention mechanism, and layer normalisation.
 The model was trained to achieve a **99.6% accuracy** on validation data, and is provided in ``model/model.pth``.
 
 ## Project Structure
@@ -65,6 +65,7 @@ The ``config.yaml`` file allows for the customisation of the program execution. 
 - Model hyperparameters.
 - Whether to perform training or load a pre-trained model from a specified path.
 - Whether to perform hyperparameter tuning.
+- Whether to display plots of the training or tuning results.
 
 ## CUDA Support
 

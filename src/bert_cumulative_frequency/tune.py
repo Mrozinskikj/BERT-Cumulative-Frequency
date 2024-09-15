@@ -41,6 +41,10 @@ def build_sample_space(sample_space_config) -> tuple[list,list]:
         param_type = sample_space_config[param]['type']
         
         if param_type == 'Real': # create object for a real sample space
+            # ensure that low and high are floats. important because yaml treats '1e-4' as a string rather than a float. need to type '1.0e-4'.
+            if not isinstance(sample_space_config[param]['low'], float) or not isinstance(sample_space_config[param]['high'], float):
+                raise TypeError(f"For parameter '{param}', 'low' and 'high' must be of type float.")
+        
             dimension = Real(
                 low=sample_space_config[param]['low'],
                 high=sample_space_config[param]['high'],

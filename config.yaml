@@ -1,5 +1,5 @@
 model:
-  load: true # whether to load the model from the specified local path. if true, skips tuning and training.
+  load: false # whether to load the model from the specified local path. if true, skips tuning and training.
   save: false # whether to save the model to the specified local path after training.
   path: 'model/model.pth' # the path to save or load the model
 
